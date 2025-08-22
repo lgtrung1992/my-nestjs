@@ -167,7 +167,13 @@ export class AuthModule implements NestModule, OnModuleInit {
     }
   }
 
-  static forRootAsync() {
+  static forRootAsync(): {
+    global: boolean;
+    module: typeof AuthModule;
+    imports: (typeof CacheModule)[];
+    providers: any[];
+    exports: any[];
+  } {
     return {
       global: true,
       module: AuthModule,

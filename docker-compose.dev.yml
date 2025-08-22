@@ -1,5 +1,5 @@
 services:
-  server:
+  app:
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -7,7 +7,7 @@ services:
       - /app/node_modules
       - .:/app
     depends_on:
-      - database
+      - db
       - redis
       - mail
     command: >
@@ -21,14 +21,13 @@ services:
       - /app/node_modules
       - .:/app
     depends_on:
-      - database
+      - db
       - redis
     command: >
       sh -c "pnpm start:dev"
 
-  database:
+  db:
     image: postgres:16
-    container_name: nestjs-boilerplate-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: '${DATABASE_USERNAME}'
@@ -40,11 +39,10 @@ services:
     volumes:
       - ./.docker/postgres_data:/var/lib/postgresql/data
     networks:
-      - nestjs-boilerplate-network
+      - my-nestjs-network
 
   mail:
     image: axllent/mailpit:v1.25
-    container_name: nestjs-boilerplate-mail
     restart: unless-stopped
     build:
       context: .
@@ -53,4 +51,17 @@ services:
       - ${DOCKER_MAIL_PORT}:1025
       - ${DOCKER_MAIL_CLIENT_PORT}:8025
     networks:
-      - nestjs-boilerplate-network
+      - my-nestjs-network
+
+  schemaspy:
+    image: schemaspy/schemaspy:latest
+    volumes:
+      - ./docs/schemaspy.properties:/schemaspy.properties
+      - ./docs/db_schema_diagram:/output
+      - ./docs/drivers:/drivers
+    command: -configFile /schemaspy.properties -debug
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - my-nestjs-network
+    restart: "no"

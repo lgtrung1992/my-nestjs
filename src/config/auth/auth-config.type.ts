@@ -10,4 +10,5 @@ export type AuthConfig = {
       clientSecret?: string;
     };
   };
+  cookiePrefix: string;
 };

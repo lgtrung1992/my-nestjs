@@ -38,6 +38,7 @@ export function getConfig(): AuthConfig {
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
       },
     },
+    cookiePrefix: process.env.COOKIE_PREFIX || 'lIPEjCnVom',
   };
 }
 

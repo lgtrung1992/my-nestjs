@@ -50,8 +50,14 @@ pnpm docker:dev:up
 - Run migrations:
 
 ```
-docker exec -it nestjs-boilerplate-server sh
+docker compose exec -it app sh
 pnpm migration:up
+```
+
+- Run seeder:
+
+```
+pnpm seed:run
 ```
 
 ### Better Auth🔒
@@ -198,3 +204,17 @@ pnpm erd:generate
 </figure>
 
 This boilerplate is extended from [nestjs-boilerplate](https://github.com/vndevteam/nestjs-boilerplate?tab=readme-ov-file)
+
+```
+docker-compose run --rm schemaspy /usr/local/bin/schemaspy \
+  -t pgsql \
+  -host host.docker.internal \
+  -u ${POSTGRESQL_USERNAME} \
+  -p ${POSTGRESQL_PASSWORD} \
+  -db ${POSTGRESQL_DATABASE} \
+  -port ${POSTGRESQL_PORT} \
+  -s public \
+  -connprops useSSL\\=false \
+  -imageformat svg \
+  -norows
+```

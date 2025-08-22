@@ -13,7 +13,7 @@ export class BetterAuthService {
     private readonly auth: Auth,
   ) {}
 
-  get api() {
+  get api(): typeof this.auth.api {
     return this.auth.api;
   }
 }
