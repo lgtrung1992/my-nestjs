@@ -1,141 +1,194 @@
-# Ultimate Nest.js Boilerplate ⚡
+# Nest.js Boilerplate ⚡
 
-Advanced Nest.js boilerplate for scalable startups.
+A comprehensive, production-ready Nest.js boilerplate designed for scalable applications with enterprise-grade features.
 
-## Features📦
+## 🚀 Quick Start
 
-- [x] Nest.js with Fastify
-- [x] PostgreSQL with TypeORM
-- [x] [Better Auth](https://www.better-auth.com/) for complete authentication. Handles authentication kinds like email/password, OAuth, Magic Link, Pass Keys, Two-Factor Authentication, Session Management, etc. [Learn More](#better-auth)
-- [x] REST, GraphQL & WebSocket API
-- [x] Websocket using Socket.io via Redis Adapter(For future scalability with clusters)
-- [x] Swagger Documentation and API versioning for REST API
-- [x] Automatic API generation on the frontend using OpenAPI Codegen [Learn More](#automatic-api-generation-on-the-frontend-)
-- [x] BullMQ for Queues. Bull board UI to inspect your jobs
-- [x] Worker server for processing background tasks like queues
-- [x] [React Email](https://react.email/) for email template management. [MailPit](https://github.com/axllent/mailpit) SMTP server for local email testing. [Learn More](#email-management-)
-- [x] Caching using Redis
-- [x] Pino for Logging
-- [x] Rate Limiter using Redis
-- [x] Graceful Shutdown
-- [x] Server & Database monitoring with Prometheus & Grafana [Learn More](#server--database-monitoring-)
-- [x] Offset and Cursor based Pagination
-- [x] Local or Remote File Uploads (AWS S3)
-- [x] Sentry
-- [x] Testing with Jest
-- [x] Internationalization using i18n
-- [x] pnpm
-- [x] Docker: Dev & Prod ready from a single script [Learn More](#docker-)
-- [x] Github Actions
-- [x] Commitlint & Husky
-- [x] SWC instead of Webpack
-- [x] Dependency Graph Visualizer [Learn More](#dependency-graph-)
-- [x] Database Entity Relationship Diagram Generator [Learn More](#database-entity-relationship-diagram️)
+### Prerequisites
+- Node.js 18+ 
+- pnpm
+- Docker & Docker Compose
+- PostgreSQL (via Docker)
 
-## Development:
+### Local Development Setup
 
-- Make `.env` files ready:
+1. **Clone and Install Dependencies**
+   ```bash
+   git clone <your-repo-url>
+   cd my-nestjs
+   pnpm install
+   ```
+
+2. **Environment Configuration**
+   ```bash
+   # Copy environment files
+   cp .env.example .env
+   cp .env.docker.example .env.docker
+   
+   # Edit .env with your local settings
+   # Edit .env.docker for Docker-specific settings
+   ```
+
+3. **Start Development Environment**
+   ```bash
+   # Start all services (PostgreSQL, Redis, MailPit, etc.)
+   pnpm docker:dev:up
+   
+   # Run database migrations
+   docker compose exec -it app sh
+   pnpm migration:up
+   
+   # Seed initial data
+   pnpm seed:run
+   
+   # Start the development server
+   pnpm start:dev
+   ```
+
+4. **Verify Installation**
+   - API: http://localhost:3000
+   - Swagger Docs: http://localhost:3000/api/docs
+   - GraphQL Playground: http://localhost:3000/graphql
+   - MailPit (Email Testing): http://localhost:18025
+   - Bull Board (Queue Monitoring): http://localhost:3000/admin/queues
+
+## 📦 Core Features
+
+### 🔐 Authentication & Authorization
+- **Better Auth Integration**: Complete authentication solution supporting:
+  - Email/Password authentication
+  - OAuth providers (Google, GitHub, etc.)
+  - Magic link authentication
+  - Passkey (WebAuthn) support
+  - Two-factor authentication (2FA)
+  - Role-based access control
+  - Session management
+- **JWT & Session-based auth**
+- **Rate limiting with Redis**
+- **Guards and decorators for route protection**
+
+### 🗄️ Database & ORM
+- **PostgreSQL** with TypeORM
+- **Database migrations** and seeding
+- **Entity relationship diagrams** (auto-generated)
+- **Connection pooling** and query optimization
+- **Multiple database support** (dev/prod configurations)
+
+### 🔄 Background Processing
+- **BullMQ** for job queues
+- **Worker server** for background task processing
+- **Queue monitoring** with Bull Board UI
+- **Email queue processing**
+- **Retry mechanisms** and error handling
+
+### 📧 Email System
+- **React Email** for template development
+- **MailPit** for local email testing
+- **Multiple email providers** support
+- **Template compilation** to HTML
+- **Email queue processing**
+
+### 🚀 API Features
+- **REST API** with automatic documentation
+- **GraphQL** with code-first approach
+- **WebSocket** support with Socket.io
+- **Redis adapter** for horizontal scaling
+- **API versioning**
+- **Request/Response validation**
+- **Pagination** (offset and cursor-based)
+
+### 📊 Monitoring & Observability
+- **Prometheus** metrics collection
+- **Grafana** dashboards
+- **Sentry** error tracking
+- **Pino** structured logging
+- **Health checks**
+- **Performance monitoring**
+
+### 🛠️ Development Tools
+- **Swagger/OpenAPI** documentation
+- **Automatic API code generation**
+- **Dependency graph visualization**
+- **Database ERD generation**
+- **Hot reload** development
+- **TypeScript** with strict configuration
+
+### 🐳 DevOps & Deployment
+- **Docker** containers (dev & prod)
+- **Docker Compose** for local development
+- **GitHub Actions** CI/CD
+- **Environment-specific configurations**
+- **Graceful shutdown handling**
+
+## 🏗️ Project Structure
 
 ```
-cp ./.env.example ./.env
-cp ./.env.docker.example ./.env.docker
+src/
+├── api/                    # API modules (REST, GraphQL)
+│   ├── user/              # User management
+│   ├── health/            # Health checks
+│   └── file/              # File uploads
+├── auth/                  # Authentication & authorization
+│   ├── entities/          # Auth-related database entities
+│   └── guards/            # Route protection
+├── config/                # Configuration management
+├── database/              # Database setup & migrations
+├── shared/                # Shared services
+│   ├── cache/            # Redis caching
+│   ├── mail/             # Email services
+│   └── socket/           # WebSocket handling
+├── worker/               # Background job processing
+└── utils/                # Utility functions
 ```
 
-- Start Docker containers:
+## 🔧 Development Commands
 
-```
-pnpm docker:dev:up
+### Basic Development
+```bash
+# Start development server
+pnpm start:dev
+
+# Build for production
+pnpm build
+
+# Run tests
+pnpm test
+pnpm test:e2e
+
+# Lint code
+pnpm lint
+pnpm lint:fix
 ```
 
-- Run migrations:
+### Database Operations
+```bash
+# Run migrations
+pnpm migration:run
 
-```
-docker compose exec -it app sh
-pnpm migration:up
-```
+# Generate migration
+pnpm migration:generate -- src/database/migrations/MigrationName
 
-- Run seeder:
+# Revert migration
+pnpm migration:revert
 
-```
+# Seed database
 pnpm seed:run
 ```
 
-### Better Auth🔒
+### Docker Operations
+```bash
+# Development environment
+pnpm docker:dev:up      # Start dev containers
+pnpm docker:dev:down    # Stop dev containers
 
-Rolling our own auth is doable but maintaining all kinds of authentication types ourselves has been found out to be a challenging task. Moreover, rolling our own auth poses security risks. That's why this boilerplate uses [Better Auth](https://www.better-auth.com/) for everything related to authentication. All of the industry standard authentication kinds are ready to be used out of the box so that you focus on building features rather than worrying about auth shenanigans:
-
-- Email/Password
-- OAuth
-- Magic Link
-- Pass Keys
-- Two Factor Authentication
-- Role based Authentication & Authorization
-- Session Management
-
-You can find the frontend client setup [here](https://github.com/niraj-khatiwada/ultimate-nestjs-client). You can find your auth API documentation by visiting `/api/auth/reference`
-<img src="./github-assets/better-auth-client.png" />
-<img src="./github-assets/better-auth.png" />
-
-### Automatic API Generation on the Frontend 🚀
-
-You can automatically generate and use all of your backend API in frontend in just one command, thanks to Swagger and OpenAPI spec. Running `pnpm codegen` on the frontend (example [repo](https://github.com/niraj-khatiwada/ultimate-nestjs-client)) will automatically generate all API's bootstrapped with [Tanstack Query](https://tanstack.com/query/latest) ready to be used with just one import. See complete example [here](https://github.com/niraj-khatiwada/ultimate-nestjs-client)
-<img src="./github-assets/openapi-codegen.png" />
-
-### Server & Database Monitoring 🚨
-
-Prometheus & Grafana are available with Docker setup only. You might only need to monitor your server or database when the user base grows or when you want to debug some specific issues. That's why this step is completely optional. If you want to monitor your server or database, just enable `monitoring` profile in your `.env` i.e. `COMPOSE_PROFILES=monitoring`.
-
-Server Monitoring Dashboard:
-![alt text](./github-assets/server-monitoring.png)
-
-Database Monitoring Dashboard:
-![alt text](./github-assets/database-monitoring.png)
-
-### Docker 🐬
-
-##### For local development:
-
-- Start container:
-
-```
-pnpm docker:dev:up
+# Production environment
+pnpm docker:prod:up     # Start prod containers
+pnpm docker:prod:down   # Stop prod containers
 ```
 
-- Stop container:
+### Email Development
 
-```
-pnpm docker:dev:down
-```
-
-##### For prod build:
-
-- Start container:
-
-```
-pnpm docker:prod:up
-```
-
-- Stop container:
-
-```
-pnpm docker:prod:down
-```
-
-##### Deployment:
-
-```
-sh ./bin/deploy.sh
-```
-
-or run workflow `.github/workflows/main.yml` via GitHub Actions.
-
-### Email Management 📬
-
-#### React Email
-
-Let's face it, it is not practical to just create some random html email templates and inject your variables and send it to your clients. Your email templates must be checked for spam, CSS compatibility for different email clients, accessibility, responsiveness, etc. You need to make sure all these checks are passed so that your emails don't end up in spam folder. [React Email](https://react.email/) is perfect fit for this. It uses React and provides many responsive email component blocks so that you can test all of the things mentioned earlier in your local development.
-
-<b>NOTE</b>: We use React Email only in local development. We don't ship React and it's packages in production at all(<i>you can see that all of the React packages are dev only</i>). After our email templates have been created, we convert the `.tsx` files into static html files at build time and NodeMailer uses that html file from our backend. All of these things are handled automatically, you don't have to do any extra setup.
+We use [React Email](https://react.email/) only in local development. We don't ship React and it's packages in production at all(<i>you can see that all of the React packages are dev only</i>). After our email templates have been created, we convert the `.tsx` files into static html files at build time and NodeMailer uses that html file from our backend. All of these things are handled automatically, you don't have to do any extra setup.
 
 - React Email dev server: See all of your email templates in Web UI.
 
@@ -155,56 +208,8 @@ pnpm email: build
 pnpm email:watch
 ```
 
-<img src="./github-assets/react-email.png" />
-
-### MailPit SMTP Server
-
-In local you can easily test your email by using [MailPit](https://github.com/axllent/mailpit) email client that ships with it's own SMTP server. The SMTP server will automatically run when you run your docker in development mode:
-
-```
-pnpm docker:dev:up
-```
-
-After that, just visit `http://localhost:<DOCKER_MAIL_CLIENT_PORT>`. You can find `DOCKER_MAIL_CLIENT_PORT` on `.env.docker`. By default, it will run on `http://localhost:18025`
-
-<img src="./github-assets/mailpit.png" />
-
-### Dependency Graph 📈
-
-Visualize all of your project modules and their dependencies. Also, detect circular dependencies.
-
+### Monitoring & Analysis
 NOTE: Make sure [Graphviz](https://www.graphviz.org/) is installed first.
-
-- All dependencies:
-
-```
-pnpm graph:app
-```
-
-- Only circular dependencies:
-
-```
-pnpm graph:circular
-```
-
-<figure>
-<img src="./github-assets/graph.png" />
-</figure>
-
-### Database Entity Relationship Diagram🛢️
-
-Visualize your database entities and their relationships.
-
-```
-pnpm erd:generate
-```
-
-<figure>
-<img src="./github-assets/erd.png"  />
-</figure>
-
-This boilerplate is extended from [nestjs-boilerplate](https://github.com/vndevteam/nestjs-boilerplate?tab=readme-ov-file)
-
 ```
 docker-compose run --rm schemaspy /usr/local/bin/schemaspy \
   -t pgsql \
@@ -218,3 +223,147 @@ docker-compose run --rm schemaspy /usr/local/bin/schemaspy \
   -imageformat svg \
   -norows
 ```
+
+```bash
+# Generate dependency graph
+pnpm graph:app
+
+# Check circular dependencies
+pnpm graph:circular
+
+# Generate database ERD
+pnpm erd:generate
+
+# Generate API documentation
+pnpm codegen
+```
+
+## 🔐 Authentication Setup
+
+This boilerplate uses [Better Auth](https://www.better-auth.com/) for comprehensive authentication. The auth API documentation is available at `/api/auth/reference` when the server is running.
+
+### Supported Authentication Methods
+- **Email/Password**: Traditional login
+- **OAuth**: Google, GitHub, Discord, etc.
+- **Magic Links**: Passwordless email authentication
+- **Passkeys**: WebAuthn-based authentication
+- **Two-Factor Authentication**: TOTP-based 2FA
+- **Session Management**: Secure session handling
+
+## 📊 Monitoring Setup
+
+### Enable Monitoring (Optional)
+To enable Prometheus and Grafana monitoring:
+
+1. **Update environment configuration**:
+   ```bash
+   # In .env.docker
+   COMPOSE_PROFILES=monitoring
+   ```
+
+2. **Access monitoring dashboards**:
+   - Grafana: http://localhost:3001 (admin/admin)
+   - Prometheus: http://localhost:9090
+
+### Available Dashboards
+- **Server Monitoring**: CPU, memory, request rates
+- **Database Monitoring**: Query performance, connections
+- **Application Metrics**: Custom business metrics
+
+## 🚀 Production Deployment
+
+### Docker Deployment
+```bash
+# Build and start production containers
+pnpm docker:prod:up
+
+# Deploy using script
+sh ./bin/deploy.sh
+```
+
+### Environment Variables
+Ensure all production environment variables are properly configured:
+- Database credentials
+- Redis configuration
+- Email provider settings
+- OAuth provider credentials
+- Sentry DSN
+- AWS/GCP credentials (if using cloud services)
+
+### Health Checks
+The application includes comprehensive health checks:
+- Database connectivity
+- Redis connectivity
+- External service dependencies
+- Custom business logic checks
+
+## 🧪 Testing
+
+### Test Structure
+- **Unit Tests**: Individual service/controller tests
+- **Integration Tests**: API endpoint testing
+- **E2E Tests**: Full application flow testing
+
+### Running Tests
+```bash
+# Unit tests
+pnpm test
+
+# E2E tests
+pnpm test:e2e
+
+# Test coverage
+pnpm test:cov
+
+# Watch mode
+pnpm test:watch
+```
+
+## 📚 API Documentation
+
+### REST API
+- **Swagger UI**: http://localhost:3000/api/docs
+- **OpenAPI Spec**: http://localhost:3000/api/docs-json
+
+### GraphQL
+- **Playground**: http://localhost:3000/graphql
+- **Schema**: Auto-generated from TypeScript decorators
+
+### WebSocket
+- **Socket.io**: Real-time communication
+- **Redis Adapter**: Horizontal scaling support
+
+## 🔄 Background Jobs
+
+### Queue Management
+- **Bull Board UI**: http://localhost:3000/admin/queues
+- **Job Monitoring**: Real-time job status
+- **Retry Configuration**: Automatic retry with backoff
+- **Job Scheduling**: Cron-based job scheduling
+
+### Common Job Types
+- Email sending
+- File processing
+- Data synchronization
+- Report generation
+
+## 🌐 Internationalization
+
+The application supports multiple languages using i18n:
+- **Supported Languages**: English, Spanish (extensible)
+- **Translation Files**: Located in `src/i18n/translations/`
+- **Auto-detection**: Based on request headers
+- **Fallback**: Default language when translation missing
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+This boilerplate is extended from [nestjs-boilerplate](https://github.com/vndevteam/nestjs-boilerplate) and enhanced with additional features for production readiness.
+
+---
+
+**Need Help?** Check the [issues](https://github.com/your-repo/issues) or create a new one for support.
+****
