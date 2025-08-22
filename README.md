@@ -46,11 +46,12 @@ A comprehensive, production-ready Nest.js boilerplate designed for scalable appl
    ```
 
 4. **Verify Installation**
-   - API: http://localhost:3000
-   - Swagger Docs: http://localhost:3000/api/docs
-   - GraphQL Playground: http://localhost:3000/graphql
-   - MailPit (Email Testing): http://localhost:18025
-   - Bull Board (Queue Monitoring): http://localhost:3000/admin/queues
+   - API: http://localhost:8000
+   - API Auth Docs: http://localhost:8000/api/auth/reference
+   - Swagger Docs: http://localhost:8000/swagger
+   - GraphQL Playground: http://localhost:8000/graphql
+   - MailPit (Email Testing): http://localhost:11080
+   - Bull Board (Queue Monitoring): http://localhost:8000/api/queues
 
 ## 📦 Core Features
 
