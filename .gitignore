@@ -1,0 +1,8 @@
+.docker
+.env
+.env.docker
+dist
+build
+node_modules
+.jest-cache
+src/tmp
