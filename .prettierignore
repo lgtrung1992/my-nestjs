@@ -1,1 +1,13 @@
 src/generated/*.ts
+dist/*
+build/*
+node_modules/*
+.tmp/*
+.jest-cache/*
+.husky/*
+.vscode/*
+.env.docker
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

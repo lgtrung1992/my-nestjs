@@ -173,5 +173,8 @@ export function getConfig({
         await cacheService.delete({ key: 'AccessToken', args: [key] });
       },
     },
+    telemetry: {
+      enabled: false,
+    },
   };
 }

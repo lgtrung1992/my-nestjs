@@ -19,13 +19,13 @@ importers:
         version: 3.701.0
       '@bull-board/api':
         specifier: ^5.23.0
-        version: 5.23.0(@bull-board/ui@5.23.0)
+        version: 5.23.0(@bull-board/ui@6.5.3)
       '@bull-board/fastify':
         specifier: ^5.23.0
         version: 5.23.0
       '@bull-board/nestjs':
         specifier: ^5.23.0
-        version: 5.23.0(@bull-board/api@5.23.0(@bull-board/ui@5.23.0))(@bull-board/express@6.5.3)(@nestjs/common@10.4.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.12)(reflect-metadata@0.2.2)(rxjs@7.8.1)
+        version: 5.23.0(@bull-board/api@5.23.0(@bull-board/ui@6.5.3))(@bull-board/express@6.5.3)(@nestjs/common@10.4.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.12)(reflect-metadata@0.2.2)(rxjs@7.8.1)
       '@fastify/cookie':
         specifier: 9.4.0
         version: 9.4.0
@@ -314,7 +314,7 @@ importers:
         version: 9.1.0(eslint@9.33.0(jiti@2.4.1))
       eslint-plugin-prettier:
         specifier: ^5.2.1
-        version: 5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@9.33.0(jiti@2.4.1)))(eslint@9.33.0(jiti@2.4.1))(prettier@3.4.1)
+        version: 5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@9.33.0(jiti@2.4.1)))(eslint@9.33.0(jiti@2.4.1))(prettier@3.6.2)
       husky:
         specifier: ^9.1.6
         version: 9.1.7
@@ -331,11 +331,11 @@ importers:
         specifier: ^1.3.1
         version: 1.3.1(@nestjs/common@10.4.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.12)(reflect-metadata@0.2.2)
       prettier:
-        specifier: ^3.3.3
-        version: 3.4.1
+        specifier: ^3.6.2
+        version: 3.6.2
       prettier-plugin-organize-imports:
         specifier: ^4.1.0
-        version: 4.1.0(prettier@3.4.1)(typescript@5.7.2)
+        version: 4.1.0(prettier@3.6.2)(typescript@5.7.2)
       react:
         specifier: 19.1.0
         version: 19.1.0
@@ -6482,13 +6482,8 @@ packages:
       vue-tsc:
         optional: true
 
-  prettier@3.4.1:
-    resolution: {integrity: sha512-G+YdqtITVZmOJje6QkXQWzl3fSfMxFwm1tjTyo9exhkmWSqC4Yhd1+lug++IlR2mvRVAxEDDWYkQdeSztajqgg==}
-    engines: {node: '>=14'}
-    hasBin: true
-
-  prettier@3.5.3:
-    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -8868,6 +8863,11 @@ snapshots:
       '@bull-board/ui': 5.23.0
       redis-info: 3.1.0
 
+  '@bull-board/api@5.23.0(@bull-board/ui@6.5.3)':
+    dependencies:
+      '@bull-board/ui': 6.5.3
+      redis-info: 3.1.0
+
   '@bull-board/api@6.5.3(@bull-board/ui@6.5.3)':
     dependencies:
       '@bull-board/ui': 6.5.3
@@ -8890,9 +8890,9 @@ snapshots:
       '@fastify/view': 8.2.0
       ejs: 3.1.10
 
-  '@bull-board/nestjs@5.23.0(@bull-board/api@5.23.0(@bull-board/ui@5.23.0))(@bull-board/express@6.5.3)(@nestjs/common@10.4.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.12)(reflect-metadata@0.2.2)(rxjs@7.8.1)':
+  '@bull-board/nestjs@5.23.0(@bull-board/api@5.23.0(@bull-board/ui@6.5.3))(@bull-board/express@6.5.3)(@nestjs/common@10.4.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.12)(reflect-metadata@0.2.2)(rxjs@7.8.1)':
     dependencies:
-      '@bull-board/api': 5.23.0(@bull-board/ui@5.23.0)
+      '@bull-board/api': 5.23.0(@bull-board/ui@6.5.3)
       '@bull-board/express': 6.5.3
       '@nestjs/bull-shared': 10.2.3(@nestjs/common@10.4.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@10.4.12)
       '@nestjs/common': 10.4.12(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -10465,7 +10465,7 @@ snapshots:
   '@react-email/render@1.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       html-to-text: 9.0.5
-      prettier: 3.5.3
+      prettier: 3.6.2
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
       react-promise-suspense: 0.3.4
@@ -12718,10 +12718,10 @@ snapshots:
     dependencies:
       eslint: 9.33.0(jiti@2.4.1)
 
-  eslint-plugin-prettier@5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@9.33.0(jiti@2.4.1)))(eslint@9.33.0(jiti@2.4.1))(prettier@3.4.1):
+  eslint-plugin-prettier@5.2.1(@types/eslint@9.6.1)(eslint-config-prettier@9.1.0(eslint@9.33.0(jiti@2.4.1)))(eslint@9.33.0(jiti@2.4.1))(prettier@3.6.2):
     dependencies:
       eslint: 9.33.0(jiti@2.4.1)
-      prettier: 3.4.1
+      prettier: 3.6.2
       prettier-linter-helpers: 1.0.0
       synckit: 0.9.2
     optionalDependencies:
@@ -15473,14 +15473,12 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-organize-imports@4.1.0(prettier@3.4.1)(typescript@5.7.2):
+  prettier-plugin-organize-imports@4.1.0(prettier@3.6.2)(typescript@5.7.2):
     dependencies:
-      prettier: 3.4.1
+      prettier: 3.6.2
       typescript: 5.7.2
 
-  prettier@3.4.1: {}
-
-  prettier@3.5.3: {}
+  prettier@3.6.2: {}
 
   pretty-format@29.7.0:
     dependencies:
