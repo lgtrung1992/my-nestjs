@@ -1,24 +1,21 @@
-##################
-# BUILD BASE IMAGE
-##################
+ARG NODE_IMAGE=node:20-slim
 
-FROM node:20-alpine AS base
+FROM ${NODE_IMAGE} AS base
 
-# Install and use pnpm
-RUN npm install -g pnpm
+RUN apt-get update && apt-get install -y procps
 
-#############################
-# BUILD FOR LOCAL DEVELOPMENT
-#############################
+RUN npm install -g pnpm@9.12.2
 
-FROM base As development
+# Development stage
+FROM base AS development
 WORKDIR /app
 RUN chown -R node:node /app
 
 COPY --chown=node:node package*.json pnpm-lock.yaml ./
 
 # Install all dependencies (including devDependencies)
-RUN pnpm install
+RUN pnpm fetch --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Bundle app source
 COPY --chown=node:node . .
@@ -26,45 +23,48 @@ COPY --chown=node:node . .
 # Use the node user from the image (instead of the root user)
 USER node
 
-#####################
-# BUILD BUILDER IMAGE
-#####################
-
+# Build stage
 FROM base AS builder
 WORKDIR /app
 
 COPY --chown=node:node package*.json pnpm-lock.yaml ./
 COPY --chown=node:node --from=development /app/node_modules ./node_modules
 COPY --chown=node:node --from=development /app/src ./src
+COPY --chown=node:node --from=development /app/scripts ./scripts
 COPY --chown=node:node --from=development /app/tsconfig.json ./tsconfig.json
 COPY --chown=node:node --from=development /app/tsconfig.build.json ./tsconfig.build.json
 COPY --chown=node:node --from=development /app/nest-cli.json ./nest-cli.json
+COPY --chown=node:node --from=development /app/.env ./.env
 
+# Build server
 RUN pnpm build
 
-# Removes unnecessary packages adn re-install only production dependencies
+# Run migrations & seeds
+RUN pnpm migration:up
+RUN pnpm seed:run
+
+# Removes unnecessary packages and re-install only production dependencies
 ENV NODE_ENV production
 RUN pnpm prune --prod
-RUN pnpm install --prod
+RUN pnpm fetch --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod
 
 USER node
 
-######################
-# BUILD FOR PRODUCTION
-######################
-
-FROM node:20-alpine AS production
+# Production stage
+FROM ${NODE_IMAGE} AS production
 WORKDIR /app
 
-RUN mkdir -p src/generated && chown -R node:node src
+RUN npm install -g pm2
+
+RUN chown -R node:node /app
 
 # Copy the bundled code from the build stage to the production image
-COPY --chown=node:node --from=builder /app/src/generated/i18n.generated.ts ./src/generated/i18n.generated.ts
 COPY --chown=node:node --from=builder /app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /app/dist ./dist
 COPY --chown=node:node --from=builder /app/package.json ./
+COPY --chown=node:node --from=development /app/pm2.config.json ./
 
 USER node
 
-# Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+CMD ["pm2-runtime", "start", "pm2.config.json"]

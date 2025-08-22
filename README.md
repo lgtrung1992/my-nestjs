@@ -1,88 +1,200 @@
-<h1 align="center">
-  <a href="https://nestjs.com/" target="blank"><img src="https://github.com/nestjs/docs.nestjs.com/blob/master/src/assets/logo-small.svg" height="100" alt="Nest logo" /></a>
-  <a href="https://typeorm.io/" target="blank"><img src="https://avatars.githubusercontent.com/u/20165699" height="100" alt="TypeORM logo" /></a>
-  <a href="https://www.postgresql.org/" target="blank"><img src="https://www.postgresql.org/media/img/about/press/elephant.png" height="100" alt="PostgreSQL logo" /></a>
-  <a href="https://jestjs.io/" target="blank"><img src="https://github.com/facebook/jest/blob/main/website/static/img/jest.png" height="100" alt="Jest logo" /></a>
-  <a href="https://prettier.io/" target="blank"><img src="https://github.com/prettier/prettier/blob/main/website/static/icon.png" height="100" alt="Prettier logo" /></a>
-  <a href="https://eslint.org/" target="blank"><img src="https://github.com/eslint/website/blob/master/assets/img/logo.svg" height="100" alt="ESLint logo" /></a>
-</h1>
+# Ultimate Nest.js Boilerplate ⚡
 
-<p align="center">A <a href="http://nodejs.org" target="_blank">NestJS</a> boilerplate for starting a new project faster.</p>
+Advanced Nest.js boilerplate for scalable startups.
 
-<p align="center">
-  <a href="https://github.com/vndevteam/nestjs-boilerplate/actions/workflows/ci.yml" target="_blank"><img src="https://github.com/vndevteam/nestjs-boilerplate/actions/workflows/ci.yml/badge.svg" alt="Build & run test passing" /></a>
-  <a href="https://app.renovatebot.com/dashboard" target="_blank"><img src="https://img.shields.io/badge/renovate-enabled-%231A1F6C?logo=renovatebot" alt="renovate enabled" /></a>
-  <a href="https://vndevteam.github.io/" target="_blank"><img src="https://img.shields.io/badge/supported_by-vndevteam-d91965?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB3aWR0aD0iMTMwIiBoZWlnaHQ9IjE4NyIgdmlld0JveD0iMCAwIDEzMCAxODciIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI%2BCjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF83NzExXzQ4OTEpIj4KPHBhdGggZD0iTTc1Ljk5NjcgNDUuNzUwNkM2NS4xMDg5IDQ2Ljg2MSA1Ny45MjMgNTguNDA5NyA2Mi4yNzgxIDY4Ljg0OEwxMDguNDQyIDE4N0w3My42MDEzIDE1NS4wMTlIMzQuODQwOUMyMC42ODY4IDE1NS4wMTkgOS4zNjM0OSAxNDMuNDcgOS4zNjM0OSAxMjkuMDM0Vjk0LjYxMDVDOS4zNjM0OSA5Mi4xNjc1IDguNDkyNDYgODkuNzI0NSA2Ljc1MDQyIDg3Ljk0NzdMMCA4MS4wNjNMNi43NTA0MiA3NC4xNzgxQzguNDkyNDYgNzIuNDAxNCA5LjM2MzQ5IDY5Ljk1ODQgOS4zNjM0OSA2Ny41MTU0VjMxLjA5MjZDOS4zNjM0OSAxMy43Njk2IDIzLjA4MjEgMCAzOS44NDkyIDBINTguMTQwN0w3NS45OTY3IDQ1Ljc1MDZaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTI1LjY0NiAxMTIuMzc4Vjk0LjgzMjdDMTI1LjY0NiA5My43MjIyIDEyNi4wODEgOTIuNjExOCAxMjYuOTUyIDkxLjcyMzRMMTMwLjAwMSA4OC4zOTIxTDEyNi45NTIgODUuMDYwN0MxMjYuMDgxIDg0LjE3MjQgMTI1LjY0NiA4My4wNjE5IDEyNS42NDYgODEuOTUxNFY2OS43MzY1QzEyNS42NDYgNTYuNDExMSAxMTQuOTc2IDQ1Ljc1MDcgMTAyLjEyOCA0NS43NTA3SDc1Ljk5NzNMMTA1LjYxMiAxMzAuODExQzEwNS42MTIgMTMwLjgxMSAxMTAuNjIgMTMwLjgxMSAxMTAuODM4IDEzMC44MTFDMTE5LjExMyAxMjkuMDM1IDEyNS42NDYgMTIxLjQ4NCAxMjUuNjQ2IDExMi4zNzhaIiBmaWxsPSJ3aGl0ZSIvPgo8L2c%2BCjxkZWZzPgo8Y2xpcFBhdGggaWQ9ImNsaXAwXzc3MTFfNDg5MSI%2BCjxyZWN0IHdpZHRoPSIxMzAiIGhlaWdodD0iMTg3IiBmaWxsPSJ3aGl0ZSIvPgo8L2NsaXBQYXRoPgo8L2RlZnM%2BCjwvc3ZnPgo%3D&logoColor=d91965" alt="supported by vndevteam" /></a>
-</p>
+## Features📦
 
-## Description
+- [x] Nest.js with Fastify
+- [x] PostgreSQL with TypeORM
+- [x] [Better Auth](https://www.better-auth.com/) for complete authentication. Handles authentication kinds like email/password, OAuth, Magic Link, Pass Keys, Two-Factor Authentication, Session Management, etc. [Learn More](#better-auth)
+- [x] REST, GraphQL & WebSocket API
+- [x] Websocket using Socket.io via Redis Adapter(For future scalability with clusters)
+- [x] Swagger Documentation and API versioning for REST API
+- [x] Automatic API generation on the frontend using OpenAPI Codegen [Learn More](#automatic-api-generation-on-the-frontend-)
+- [x] BullMQ for Queues. Bull board UI to inspect your jobs
+- [x] Worker server for processing background tasks like queues
+- [x] [React Email](https://react.email/) for email template management. [MailPit](https://github.com/axllent/mailpit) SMTP server for local email testing. [Learn More](#email-management-)
+- [x] Caching using Redis
+- [x] Pino for Logging
+- [x] Rate Limiter using Redis
+- [x] Graceful Shutdown
+- [x] Server & Database monitoring with Prometheus & Grafana [Learn More](#server--database-monitoring-)
+- [x] Offset and Cursor based Pagination
+- [x] Local or Remote File Uploads (AWS S3)
+- [x] Sentry
+- [x] Testing with Jest
+- [x] Internationalization using i18n
+- [x] pnpm
+- [x] Docker: Dev & Prod ready from a single script [Learn More](#docker-)
+- [x] Github Actions
+- [x] Commitlint & Husky
+- [x] SWC instead of Webpack
+- [x] Dependency Graph Visualizer [Learn More](#dependency-graph-)
+- [x] Database Entity Relationship Diagram Generator [Learn More](#database-entity-relationship-diagram️)
 
-NestJS boilerplate for a typical project
+## Development:
 
-Demo: <https://nestjs-boilerplate-n27l.onrender.com/api-docs>
+- Make `.env` files ready:
 
-## Getting started
-
-```bash
-# Clone the repository
-git clone https://github.com/vndevteam/nestjs-boilerplate.git
-
-# Create environment variables file.
-cp .env.example .env
-
-# Install dependences.
-pnpm install
+```
+cp ./.env.example ./.env
+cp ./.env.docker.example ./.env.docker
 ```
 
-## Checklist
+- Start Docker containers:
 
-When you use this template, try follow the checklist to update your info properly
-
-- [ ] Change the author name in `LICENSE`
-- [ ] Change configurations in `.env`
-- [ ] Remove the `.github` folder which contains the funding info
-- [ ] Clean up the README.md file
-
-## Running the app
-
-```bash
-# development
-$ pnpm start
-
-# watch mode
-$ pnpm start:dev
-
-# production mode
-$ pnpm start:prod
+```
+pnpm docker:dev:up
 ```
 
-## Features
+- Run migrations:
 
-- [x] Fastify support. (Checkout the [`feature.fastify`](https://github.com/vndevteam/nestjs-boilerplate/tree/feature.fastify) branch)
-- [x] Database. Support [TypeORM](https://www.npmjs.com/package/typeorm)
-- [x] Seeding ([Typeorm Extension](https://www.npmjs.com/package/typeorm-extension)).
-- [x] Config Service ([@nestjs/config](https://www.npmjs.com/package/@nestjs/config)).
-- [x] Mailing ([@nestjs-modules/mailer](https://www.npmjs.com/package/@nestjs-modules/mailer) & [nodemailer](https://www.npmjs.com/package/nodemailer)).
-- [x] Sign in and sign up via email.
-- [ ] Social sign in (Apple, Facebook, Google, Twitter).
-- [ ] Admin and User roles.
-- [x] Pagination: Offset and Cursor (Clone from [typeorm-cursor-pagination](https://github.com/benjamin658/typeorm-cursor-pagination) and add more features).
-- [x] Internationalization/Translations (I18N) ([nestjs-i18n](https://www.npmjs.com/package/nestjs-i18n)).
-- [ ] File uploads. Support local and Amazon S3 drivers.
-- [x] Swagger.
-- [x] E2E and units tests.
-- [x] Docker.
-- [x] CI (Github Actions).
+```
+docker exec -it nestjs-boilerplate-server sh
+pnpm migration:up
+```
 
-## More documentations
+### Better Auth🔒
 
-Please read the [docs](docs/README.md). It contains the details about the project structure, conventions, and more.
+Rolling our own auth is doable but maintaining all kinds of authentication types ourselves has been found out to be a challenging task. Moreover, rolling our own auth poses security risks. That's why this boilerplate uses [Better Auth](https://www.better-auth.com/) for everything related to authentication. All of the industry standard authentication kinds are ready to be used out of the box so that you focus on building features rather than worrying about auth shenanigans:
 
-## References
+- Email/Password
+- OAuth
+- Magic Link
+- Pass Keys
+- Two Factor Authentication
+- Role based Authentication & Authorization
+- Session Management
 
-- [Awesome Nest Boilerplate](https://github.com/NarHakobyan/awesome-nest-boilerplate)
-- [Brocoders NestJS Boilerplate](https://github.com/brocoders/nestjs-boilerplate)
+You can find the frontend client setup [here](https://github.com/niraj-khatiwada/ultimate-nestjs-client). You can find your auth API documentation by visiting `/api/auth/reference`
+<img src="./github-assets/better-auth-client.png" />
+<img src="./github-assets/better-auth.png" />
 
-## Support
+### Automatic API Generation on the Frontend 🚀
 
-[Discuss on Github](https://github.com/vndevteam/nestjs-boilerplate/discussions)
+You can automatically generate and use all of your backend API in frontend in just one command, thanks to Swagger and OpenAPI spec. Running `pnpm codegen` on the frontend (example [repo](https://github.com/niraj-khatiwada/ultimate-nestjs-client)) will automatically generate all API's bootstrapped with [Tanstack Query](https://tanstack.com/query/latest) ready to be used with just one import. See complete example [here](https://github.com/niraj-khatiwada/ultimate-nestjs-client)
+<img src="./github-assets/openapi-codegen.png" />
+
+### Server & Database Monitoring 🚨
+
+Prometheus & Grafana are available with Docker setup only. You might only need to monitor your server or database when the user base grows or when you want to debug some specific issues. That's why this step is completely optional. If you want to monitor your server or database, just enable `monitoring` profile in your `.env` i.e. `COMPOSE_PROFILES=monitoring`.
+
+Server Monitoring Dashboard:
+![alt text](./github-assets/server-monitoring.png)
+
+Database Monitoring Dashboard:
+![alt text](./github-assets/database-monitoring.png)
+
+### Docker 🐬
+
+##### For local development:
+
+- Start container:
+
+```
+pnpm docker:dev:up
+```
+
+- Stop container:
+
+```
+pnpm docker:dev:down
+```
+
+##### For prod build:
+
+- Start container:
+
+```
+pnpm docker:prod:up
+```
+
+- Stop container:
+
+```
+pnpm docker:prod:down
+```
+
+##### Deployment:
+
+```
+sh ./bin/deploy.sh
+```
+
+or run workflow `.github/workflows/main.yml` via GitHub Actions.
+
+### Email Management 📬
+
+#### React Email
+
+Let's face it, it is not practical to just create some random html email templates and inject your variables and send it to your clients. Your email templates must be checked for spam, CSS compatibility for different email clients, accessibility, responsiveness, etc. You need to make sure all these checks are passed so that your emails don't end up in spam folder. [React Email](https://react.email/) is perfect fit for this. It uses React and provides many responsive email component blocks so that you can test all of the things mentioned earlier in your local development.
+
+<b>NOTE</b>: We use React Email only in local development. We don't ship React and it's packages in production at all(<i>you can see that all of the React packages are dev only</i>). After our email templates have been created, we convert the `.tsx` files into static html files at build time and NodeMailer uses that html file from our backend. All of these things are handled automatically, you don't have to do any extra setup.
+
+- React Email dev server: See all of your email templates in Web UI.
+
+```
+pnpm email:dev
+```
+
+- Build email templates(Handled): Convert `.tsx` templates file into html(`.hbs`). This is already handled in post build (`build` script).
+
+```
+pnpm email: build
+```
+
+- Watch Email(Handled): Watch your `.tsx` email files inside `templates/` folder and convert them to html(`.hbs`). This is already handled when you run your Nest.js server (in `start:dev` script).
+
+```
+pnpm email:watch
+```
+
+<img src="./github-assets/react-email.png" />
+
+### MailPit SMTP Server
+
+In local you can easily test your email by using [MailPit](https://github.com/axllent/mailpit) email client that ships with it's own SMTP server. The SMTP server will automatically run when you run your docker in development mode:
+
+```
+pnpm docker:dev:up
+```
+
+After that, just visit `http://localhost:<DOCKER_MAIL_CLIENT_PORT>`. You can find `DOCKER_MAIL_CLIENT_PORT` on `.env.docker`. By default, it will run on `http://localhost:18025`
+
+<img src="./github-assets/mailpit.png" />
+
+### Dependency Graph 📈
+
+Visualize all of your project modules and their dependencies. Also, detect circular dependencies.
+
+NOTE: Make sure [Graphviz](https://www.graphviz.org/) is installed first.
+
+- All dependencies:
+
+```
+pnpm graph:app
+```
+
+- Only circular dependencies:
+
+```
+pnpm graph:circular
+```
+
+<figure>
+<img src="./github-assets/graph.png" />
+</figure>
+
+### Database Entity Relationship Diagram🛢️
+
+Visualize your database entities and their relationships.
+
+```
+pnpm erd:generate
+```
+
+<figure>
+<img src="./github-assets/erd.png"  />
+</figure>
+
+This boilerplate is extended from [nestjs-boilerplate](https://github.com/vndevteam/nestjs-boilerplate?tab=readme-ov-file)

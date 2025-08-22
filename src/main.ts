@@ -1,7 +1,7 @@
+import fastifyCookie from '@fastify/cookie';
 import {
   ClassSerializerInterceptor,
   HttpStatus,
-  RequestMethod,
   UnprocessableEntityException,
   ValidationError,
   ValidationPipe,
@@ -13,89 +13,165 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import compression from 'compression';
+import * as Sentry from '@sentry/node';
 import helmet from 'helmet';
-import { AuthService } from './api/auth/auth.service';
+import { setupGracefulShutdown } from 'nestjs-graceful-shutdown';
+
+import path from 'path';
 import { AppModule } from './app.module';
-import { type AllConfigType } from './config/config.type';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
-import { AuthGuard } from './guards/auth.guard';
-import { consoleLoggingConfig } from './utils/logger-factory';
-import setupSwagger from './utils/setup-swagger';
+import { getConfig as getAppConfig } from './config/app/app.config';
+import { BULL_BOARD_PATH } from './config/bull/bull.config';
+import { type GlobalConfig } from './config/config.type';
+import { Environment } from './constants/app.constant';
+import { SentryInterceptor } from './interceptors/sentry.interceptor';
+import { basicAuthMiddleware } from './middlewares/basic-auth.middleware';
+import { RedisIoAdapter } from './shared/socket/redis.adapter';
+import { consoleLoggingConfig } from './tools/logger/logger-factory';
+import setupSwagger, { SWAGGER_PATH } from './tools/swagger/swagger.setup';
 
 async function bootstrap() {
-  const envToLogger = {
+  const envToLogger: Record<`${Environment}`, any> = {
+    local: consoleLoggingConfig(),
     development: consoleLoggingConfig(),
     production: true,
+    staging: true,
     test: false,
-  };
+  } as const;
+
+  const appConfig = getAppConfig();
+
+  const isWorker = appConfig.isWorker;
 
   const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter({ logger: envToLogger[process.env.NODE_ENV] ?? true }),
+    isWorker ? AppModule.worker() : AppModule.main(),
+    new FastifyAdapter({
+      logger: appConfig.appLogging ? envToLogger[appConfig.nodeEnv] : false,
+      trustProxy: appConfig.isHttps,
+    }),
     {
       bufferLogs: true,
     },
   );
 
-  // Setup security headers
-  app.use(helmet());
+  const configService = app.get(ConfigService<GlobalConfig>);
 
-  // For high-traffic websites in production, it is strongly recommended to offload compression from the application server - typically in a reverse proxy (e.g., Nginx). In that case, you should not use compression middleware.
-  app.use(compression());
-
-  const configService = app.get(ConfigService<AllConfigType>);
-  const reflector = app.get(Reflector);
-  const isDevelopment =
-    configService.getOrThrow('app.nodeEnv', { infer: true }) === 'development';
-  const corsOrigin = configService.getOrThrow('app.corsOrigin', {
-    infer: true,
+  await app.register(fastifyCookie, {
+    secret: configService.getOrThrow('auth.authSecret', {
+      infer: true,
+    }) as string,
   });
 
-  app.enableCors({
-    origin: corsOrigin,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
-    credentials: true,
-  });
-  console.info('CORS Origin:', corsOrigin);
+  app.setGlobalPrefix('api');
 
-  // Use global prefix if you don't have subdomain
-  app.setGlobalPrefix(
-    configService.getOrThrow('app.apiPrefix', { infer: true }),
-    {
-      exclude: [
-        { method: RequestMethod.GET, path: '/' },
-        { method: RequestMethod.GET, path: 'health' },
-      ],
-    },
-  );
-
-  app.enableVersioning({
-    type: VersioningType.URI,
-  });
-
-  app.useGlobalGuards(new AuthGuard(reflector, app.get(AuthService)));
-  app.useGlobalFilters(new GlobalExceptionFilter(configService));
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
+      forbidNonWhitelisted: true,
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       exceptionFactory: (errors: ValidationError[]) => {
         return new UnprocessableEntityException(errors);
       },
     }),
   );
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
+
+  app.enableCors({
+    origin: configService.getOrThrow('app.corsOrigin', {
+      infer: true,
+    }),
+    methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+    ],
+    credentials: true,
+  });
+
+  const env = configService.getOrThrow('app.nodeEnv', { infer: true });
+
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: [
+            "'self'",
+            'https://cdn.jsdelivr.net/npm/@scalar/api-reference', // For Better Auth API Reference.
+          ],
+        },
+      },
+    }),
+  );
+  // Static files
+  app.useStaticAssets({
+    root: path.join(__dirname, '..', 'src', 'tmp', 'file-uploads'),
+    prefix: '/public',
+    setHeaders(res: any) {
+      res.setHeader(
+        'Access-Control-Allow-Origin',
+        configService.getOrThrow('app.corsOrigin', {
+          infer: true,
+        }),
+      );
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    },
+  });
+
+  const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
 
-  if (isDevelopment) {
+  if (env !== 'production') {
     setupSwagger(app);
   }
 
-  await app.listen(configService.getOrThrow('app.port', { infer: true }));
+  Sentry.init({
+    dsn: configService.getOrThrow('sentry.dsn', { infer: true }),
+    tracesSampleRate: 1.0,
+    environment: env,
+  });
+  app.useGlobalInterceptors(new SentryInterceptor());
 
-  console.info(`Server running on ${await app.getUrl()}`);
+  if (env !== 'local') {
+    setupGracefulShutdown({ app });
+  }
+
+  if (!isWorker) {
+    app.useWebSocketAdapter(new RedisIoAdapter(app));
+  }
+
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addHook('onRequest', async (req, reply) => {
+      const pathsToIntercept = [
+        `/api${BULL_BOARD_PATH}`, // Bull-Board
+        SWAGGER_PATH, // Swagger Docs
+        `/api/auth/reference`, // Better Auth Docs
+      ];
+      if (pathsToIntercept.some((path) => req.url.startsWith(path))) {
+        await basicAuthMiddleware(req, reply);
+      }
+    });
+
+  await app.listen({
+    port: isWorker
+      ? configService.getOrThrow('app.workerPort', { infer: true })
+      : configService.getOrThrow('app.port', { infer: true }),
+    host: '0.0.0.0',
+  });
+
+  const httpUrl = await app.getUrl();
+  // eslint-disable-next-line no-console
+  console.info(
+    `\x1b[3${isWorker ? '3' : '4'}m${isWorker ? 'Worker ' : ''}Server running at ${httpUrl}`,
+  );
 
   return app;
 }

@@ -1,11 +1,11 @@
-export enum QueueName {
-  EMAIL = 'email',
-}
+export const Queue = {
+  Email: 'email',
+} as const;
 
-export enum QueuePrefix {
-  AUTH = 'auth',
-}
-
-export enum JobName {
-  EMAIL_VERIFICATION = 'email-verification',
-}
+export const Job = {
+  Email: {
+    EmailVerification: 'email-verification',
+    SignInMagicLink: 'signin-magic-link',
+    ResetPassword: 'reset-password',
+  },
+} as const satisfies Record<keyof typeof Queue, Record<string, string>>;

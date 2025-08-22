@@ -1,8 +1,10 @@
-import { AllConfigType } from '@/config/config.type';
+import { AuthService } from '@/auth/auth.service';
+import { GlobalConfig } from '@/config/config.type';
 import { ConfigService } from '@nestjs/config';
 import {
   HealthCheckService,
   HttpHealthIndicator,
+  MicroserviceHealthIndicator,
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -12,13 +14,17 @@ describe('HealthController', () => {
   let controller: HealthController;
   let service: HealthCheckService;
   let configServiceValue: Partial<
-    Record<keyof ConfigService<AllConfigType>, jest.Mock>
+    Record<keyof ConfigService<GlobalConfig>, jest.Mock>
   >;
   let healthCheckServiceValue: Partial<
     Record<keyof HealthCheckService, jest.Mock>
   >;
   let httpUseValue: Partial<Record<keyof HttpHealthIndicator, jest.Mock>>;
   let dbUseValue: Partial<Record<keyof TypeOrmHealthIndicator, jest.Mock>>;
+  let microServiceValue: Partial<
+    Record<keyof MicroserviceHealthIndicator, jest.Mock>
+  >;
+  let authServiceValue: Partial<Record<keyof AuthService, jest.Mock>>;
 
   beforeAll(async () => {
     configServiceValue = {
@@ -35,6 +41,14 @@ describe('HealthController', () => {
 
     dbUseValue = {
       pingCheck: jest.fn(),
+    };
+
+    microServiceValue = {
+      pingCheck: jest.fn(),
+    };
+
+    authServiceValue = {
+      createBasicAuthHeaders: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -55,6 +69,14 @@ describe('HealthController', () => {
         {
           provide: TypeOrmHealthIndicator,
           useValue: dbUseValue,
+        },
+        {
+          provide: MicroserviceHealthIndicator,
+          useValue: microServiceValue,
+        },
+        {
+          provide: AuthService,
+          useValue: authServiceValue,
         },
       ],
     }).compile();
@@ -80,6 +102,7 @@ describe('HealthController', () => {
           db: {
             status: 'up',
           },
+          redis: { status: 'up' },
           http: {
             status: 'up',
           },

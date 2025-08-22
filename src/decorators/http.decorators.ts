@@ -1,4 +1,5 @@
 import { ErrorDto } from '@/common/dto/error.dto';
+import { Serialize } from '@/utils/interceptors/serialize';
 import {
   HttpCode,
   HttpStatus,
@@ -6,20 +7,18 @@ import {
   applyDecorators,
 } from '@nestjs/common';
 import {
-  ApiBasicAuth,
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiOperationOptions,
   ApiResponse,
-  ApiSecurity,
 } from '@nestjs/swagger';
 import { STATUS_CODES } from 'http';
 import { Public } from './public.decorator';
 import { ApiPaginatedResponse } from './swagger.decorators';
 
 type ApiResponseType = number;
-type ApiAuthType = 'basic' | 'api-key' | 'jwt';
 type PaginationType = 'offset' | 'cursor';
 
 interface IApiOptions<T extends Type<any>> {
@@ -30,13 +29,11 @@ interface IApiOptions<T extends Type<any>> {
   statusCode?: HttpStatus;
   isPaginated?: boolean;
   paginationType?: PaginationType;
+  operations?: ApiOperationOptions;
 }
 
 type IApiPublicOptions = IApiOptions<Type<any>>;
-
-interface IApiAuthOptions extends IApiOptions<Type<any>> {
-  auths?: ApiAuthType[];
-}
+type IApiAuthOptions = IApiOptions<Type<any>>;
 
 export const ApiPublic = (options: IApiPublicOptions = {}): MethodDecorator => {
   const defaultStatusCode = HttpStatus.OK;
@@ -63,11 +60,17 @@ export const ApiPublic = (options: IApiPublicOptions = {}): MethodDecorator => {
       }),
   );
 
+  const serializers = [];
+  if (typeof options.type === 'function') {
+    serializers.push(Serialize(options?.type));
+  }
+
   return applyDecorators(
     Public(),
-    ApiOperation({ summary: options?.summary }),
+    ApiOperation({ summary: options?.summary, ...(options?.operations ?? {}) }),
     HttpCode(options.statusCode || defaultStatusCode),
     isPaginated ? ApiPaginatedResponse(ok) : ApiOkResponse(ok),
+    ...serializers,
     ...errorResponses,
   );
 };
@@ -88,7 +91,6 @@ export const ApiAuth = (options: IApiAuthOptions = {}): MethodDecorator => {
     description: options?.description ?? 'OK',
     paginationType: options.paginationType || 'offset',
   };
-  const auths = options.auths || ['jwt'];
 
   const errorResponses = (options.errorResponses || defaultErrorResponses)?.map(
     (statusCode) =>
@@ -99,26 +101,21 @@ export const ApiAuth = (options: IApiAuthOptions = {}): MethodDecorator => {
       }),
   );
 
-  const authDecorators = auths.map((auth) => {
-    switch (auth) {
-      case 'basic':
-        return ApiBasicAuth();
-      case 'api-key':
-        return ApiSecurity('Api-Key');
-      case 'jwt':
-        return ApiBearerAuth();
-    }
-  });
+  const serializers = [];
+  if (typeof options.type === 'function') {
+    serializers.push(Serialize(options?.type));
+  }
 
   return applyDecorators(
-    ApiOperation({ summary: options?.summary }),
+    ApiOperation({ summary: options?.summary, ...(options?.operations ?? {}) }),
     HttpCode(options.statusCode || defaultStatusCode),
     isPaginated
       ? ApiPaginatedResponse(ok)
       : options.statusCode === 201
         ? ApiCreatedResponse(ok)
         : ApiOkResponse(ok),
-    ...authDecorators,
+    ApiBearerAuth(),
+    ...serializers,
     ...errorResponses,
   );
 };

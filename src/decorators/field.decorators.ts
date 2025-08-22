@@ -10,6 +10,7 @@ import {
   IsEnum,
   IsInt,
   IsJWT,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
@@ -116,7 +117,7 @@ export function StringField(
     );
   }
 
-  const minLength = options.minLength || 1;
+  const minLength = options.minLength ?? 1;
 
   decorators.push(MinLength(minLength, { each: options.each }));
 
@@ -161,7 +162,7 @@ export function StringFieldOptional(
 ): PropertyDecorator {
   return applyDecorators(
     IsOptional({ each: options.each }),
-    StringField({ required: false, ...options }),
+    StringField({ required: false, minLength: 0, ...options }),
   );
 }
 
@@ -224,6 +225,7 @@ export function EmailField(
   const decorators = [
     IsEmail(),
     StringField({ toLowerCase: true, ...options }),
+    IsNotEmpty,
   ];
 
   if (options.nullable) {

@@ -1,5 +1,8 @@
 export enum CacheKey {
-  SESSION_BLACKLIST = 'auth:session-blacklist:%s', // %s: sessionId
-  EMAIL_VERIFICATION = 'auth:token:%s:email-verification', // %s: userId
-  PASSWORD_RESET = 'auth:token:%s:password', // %s: userId
+  AccessToken = 'auth:token:%s:access', // %s: hash
+  EmailVerificationToken = 'auth:token:%s:email-verification', // %s: userId
+  UserSocketClients = 'socket:%s:clients', // %s: userId
+  SignInMagicLinkMailLastSentAt = 'auth:signin-magic-link-mail:%s:last-sent-at', // %s: userId
+  EmailVerificationMailLastSentAt = 'auth:email-verification-mail:%s:last-sent-at', // %s: userId
+  ResetPasswordMailLastSentAt = 'auth:reset-password-mail:%s:last-sent-at', // %s: userId
 }
