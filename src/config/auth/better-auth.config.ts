@@ -127,7 +127,7 @@ export function getConfig({
         role: {
           type: 'string',
           required: false,
-          defaultValue: 'Professor',
+          defaultValue: 'professor',
           input: false, // don't allow user to set role
         },
         university_id: {
@@ -145,6 +145,37 @@ export function getConfig({
           type: 'string',
           required: false,
           input: false, // don't allow user to set last_login_at
+        },
+        // Extended user information (moved from user_profiles)
+        phone: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
+        address: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
+        bio: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
+        department: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
+        position: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
+        research_field: {
+          type: 'string',
+          required: false,
+          input: true,
         },
       },
     },
@@ -199,7 +230,7 @@ export function getConfig({
                   username: profile.login,
                   is_email_verified: true,
                   image: profile.avatar_url,
-                  role: 'Professor',
+                  role: 'professor',
                   status: 'active',
                 };
               },

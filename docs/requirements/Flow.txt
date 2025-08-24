@@ -1,0 +1,27 @@
+Có tính năng tags cho fund để dễ tìm kiếm thông qua tags.
+
+Flow:
+- Giáo sư bấm submit tại màn chi tiết fund. Sẽ hiện form nhập file
+- Hiện nút có muốn invite reviewer không
+- Số lượng invite tối đa là 5 người, không tính người đã reject yêu cầu invite hoặc lời mời hết hạn. Vậy nên cần lưu thông tin về việc invitation
+- Reviewer có thể là giáo sư khác hoặc staff
+- Khi bất cứ ai chấp nhận lời mời thì việc apply sẽ đổi status sang Under Review
+- invitation sẽ có thời hạn tối đa 1 tuần để chấp nhận lời mời nếu ko reject. Nếu đã chấp nhận thì sẽ có tối đa 2 tuần để review. Nếu ko sẽ không còn là reviewer nữa.
+Cần có trạng thái lưu việc reviewer ko hoạt động nữa.
+- Reviewer có thể do giáo sư đang muốn apply vào fund mời hoặc do staff chỉ định mời. Với reviewer do staff mời thì họ sẽ ẩn danh đổi với view của giáo sư.
+- Giáo sư có thể thực hiện mark as favorite đối với 1 fund.
+- Giáo sư cũng có thể thực hiện thao tác set 1 fund là Will Apply hoặc In Consideration. Cần lưu việc này vào database.
+- Người review có thể tải lên các file review. Cần lưu việc này vào database.
+- Staff có thể tải lên các file tài liệu liên quan đến fund kèm theo thông tin email của chủ nhân tài liệu trước đây, có thể ko phải user trong hệ thống. Nên cần xin phép chủ nhân đó trước.
+Việc xin phép sẽ có thời hạn tối đa là 1 tháng. Và cũng cần các status cho việc xin phép.
+
+
+Mỗi lần giáo sư submit sẽ có tài liệu mới được giáo sư tải lên. Việc này cần thông báo cho những người đang trong trạng thái chấp nhận review và staff phụ trách cho fund đó. Lịch sử gửi email thông báo cần lưu lại vào database, nên cần tạo table nếu chưa có. Lần submit của giáo sư cũng cần cập nhật thông tin đã gửi email cho đủ người liên quan hay chưa.
+Với lần submit mà giáo sư đánh dấu là Final thì sẽ ko cần gửi thông báo nên field này sẽ ko cần set giá trị.
+
+Các user trong hệ thống sẽ nhận được notification khi có sự kiện có liên quan đến họ.
+Cần lưu thông tin về các topic chat, mỗi fund có 1 topic chat chung. Và các topic chat riêng giữa giáo sư với reviewer hoặc với staff phụ trách fund.
+Giáo sư có thể chat trực tiếp với staff phụ trách fund và các reviewer mà chính giáo sư mời. Nhưng sẽ ko thấy các reviewer do staff mời.
+Reviewer sẽ ko thể nhìn thấy giáo sư nếu là do staff mời. Chỉ những reviewer do giáo sư mời mới chat trực tiếp được với giáo sư.
+
+Trong cuộc trò chuyện thì giáo sư và reviewer có thể gửi file.
