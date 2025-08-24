@@ -95,20 +95,81 @@ export function getConfig({
     },
     session: {
       freshAge: 0, // We perform every sensitive operation via our own API so this is irrelevant.
-      modelName: 'session',
+      modelName: 'sessions',
+      fields: {
+        userId: 'user_id',
+        expiresAt: 'expires_at',
+        ipAddress: 'ip_address',
+        userAgent: 'user_agent',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+      },
     },
     user: {
-      modelName: 'user',
+      modelName: 'users',
       fields: {
-        name: 'firstName',
-        emailVerified: 'isEmailVerified',
+        name: 'first_name',
+        emailVerified: 'is_email_verified',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+      },
+      additionalFields: {
+        last_name: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
+        username: {
+          type: 'string',
+          required: false,
+          input: true,
+        },
+        role: {
+          type: 'string',
+          required: false,
+          defaultValue: 'Professor',
+          input: false, // don't allow user to set role
+        },
+        university_id: {
+          type: 'string',
+          required: false,
+          input: false, // don't allow user to set university_id
+        },
+        status: {
+          type: 'string',
+          required: false,
+          defaultValue: 'pending',
+          input: false, // don't allow user to set status
+        },
+        last_login_at: {
+          type: 'string',
+          required: false,
+          input: false, // don't allow user to set last_login_at
+        },
       },
     },
     account: {
-      modelName: 'account',
+      modelName: 'accounts',
+      fields: {
+        userId: 'user_id',
+        accountId: 'account_id',
+        providerId: 'provider_id',
+        accessToken: 'access_token',
+        refreshToken: 'refresh_token',
+        accessTokenExpiresAt: 'access_token_expires_at',
+        refreshTokenExpiresAt: 'refresh_token_expires_at',
+        idToken: 'id_token',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+      },
     },
     verification: {
-      modelName: 'verification',
+      modelName: 'verifications',
+      fields: {
+        expiresAt: 'expires_at',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+      },
     },
     emailVerification: {
       sendVerificationEmail: async ({ user, url }) => {
@@ -133,10 +194,13 @@ export function getConfig({
               mapProfileToUser(profile) {
                 return {
                   email: profile.email,
-                  name: profile.login,
+                  first_name: profile.name?.split(' ')[0] || profile.login,
+                  last_name: profile.name?.split(' ')[1] || '',
                   username: profile.login,
-                  emailVerified: true,
+                  is_email_verified: true,
                   image: profile.avatar_url,
+                  role: 'Professor',
+                  status: 'active',
                 };
               },
             },
