@@ -5,35 +5,35 @@ export class AddPasskeyTable1748170170238 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            CREATE TABLE "passkey" (
+            CREATE TABLE "passkeys" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
+                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "deleted_at" TIMESTAMP,
                 "name" character varying,
-                "userId" uuid NOT NULL,
-                "publicKey" character varying NOT NULL,
-                "credentialID" character varying NOT NULL,
+                "user_id" uuid NOT NULL,
+                "public_key" character varying NOT NULL,
+                "credential_id" character varying NOT NULL,
                 "counter" integer NOT NULL,
-                "deviceType" character varying NOT NULL,
-                "backedUp" boolean NOT NULL,
+                "device_type" character varying NOT NULL,
+                "backed_up" boolean NOT NULL,
                 "transports" character varying NOT NULL,
                 CONSTRAINT "PK_783e2060d8025abd6a6ca45d2c7" PRIMARY KEY ("id")
             )
         `);
 
     await queryRunner.query(`
-            ALTER TABLE "passkey"
-            ADD CONSTRAINT "FK_c36f303905314ea9ead857b6268" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION
+            ALTER TABLE "passkeys"
+            ADD CONSTRAINT "FK_c36f303905314ea9ead857b6268" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            ALTER TABLE "passkey" DROP CONSTRAINT "FK_c36f303905314ea9ead857b6268"
+            ALTER TABLE "passkeys" DROP CONSTRAINT "FK_c36f303905314ea9ead857b6268"
         `);
     await queryRunner.query(`
-            DROP TABLE "passkey"
+            DROP TABLE "passkeys"
         `);
   }
 }

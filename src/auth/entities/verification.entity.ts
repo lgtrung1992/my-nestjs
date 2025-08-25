@@ -2,7 +2,7 @@ import { BaseModel } from '@/database/models/base.model';
 import { Column, Entity } from 'typeorm';
 
 // https://www.better-auth.com/docs/concepts/database#core-schema
-@Entity('verification')
+@Entity('verifications')
 export class VerificationEntity extends BaseModel {
   @Column()
   identifier: string;
@@ -10,6 +10,6 @@ export class VerificationEntity extends BaseModel {
   @Column()
   value: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', name: 'expires_at' })
   expiresAt: Date;
 }

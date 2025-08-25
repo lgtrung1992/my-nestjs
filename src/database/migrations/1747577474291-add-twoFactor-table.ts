@@ -5,36 +5,29 @@ export class AddTwoFactorTable1747577474291 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            CREATE TABLE "twoFactor" (
+            CREATE TABLE "two_factors" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "userId" uuid NOT NULL,
+                "created_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
+                "deleted_at" TIMESTAMP,
+                "user_id" uuid NOT NULL,
                 "secret" character varying,
-                "backupCodes" character varying,
+                "backup_codes" character varying,
                 CONSTRAINT "PK_6e6e22172b1e7437f77cbfed056" PRIMARY KEY ("id")
             )
         `);
     await queryRunner.query(`
-            ALTER TABLE "user"
-            ADD "twoFactorEnabled" boolean NOT NULL DEFAULT false
-        `);
-    await queryRunner.query(`
-            ALTER TABLE "twoFactor"
-            ADD CONSTRAINT "FK_03fe91172968ed69813bc6ff0bd" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION
+            ALTER TABLE "two_factors"
+            ADD CONSTRAINT "FK_03fe91172968ed69813bc6ff0bd" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-            ALTER TABLE "twoFactor" DROP CONSTRAINT "FK_03fe91172968ed69813bc6ff0bd"
+            ALTER TABLE "two_factors" DROP CONSTRAINT "FK_03fe91172968ed69813bc6ff0bd"
         `);
     await queryRunner.query(`
-            ALTER TABLE "user" DROP COLUMN "twoFactorEnabled"
-        `);
-    await queryRunner.query(`
-            DROP TABLE "twoFactor"
+            DROP TABLE "two_factors"
         `);
   }
 }
