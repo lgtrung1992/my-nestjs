@@ -2,11 +2,8 @@
 -- FUND MANAGEMENT SYSTEM DATABASE SCHEMA (PostgreSQL)
 -- =====================================================
 
--- Tạo database
+-- Create database
 CREATE DATABASE fundhub;
-
--- Kết nối database
-\c fundhub;
 
 -- =====================================================
 -- ENUM TYPES
@@ -140,9 +137,9 @@ CREATE TYPE message_type AS ENUM (
 
 -- Chat topic types
 CREATE TYPE chat_topic_type AS ENUM (
-    'fund_general',      -- Chat chung của fund
-    'professor_staff',   -- Chat giữa giáo sư và staff
-    'professor_reviewer' -- Chat giữa giáo sư và reviewer
+    'fund_general',      -- General chat for the fund
+    'professor_staff',   -- Chat between professor and staff
+    'professor_reviewer' -- Chat between professor and reviewer
 );
 
 -- University status
@@ -779,18 +776,6 @@ CREATE INDEX idx_university_package_purchases_purchased_at ON university_package
 CREATE INDEX idx_university_package_purchases_expires_at ON university_package_purchases(expires_at);
 CREATE INDEX idx_university_package_purchases_deleted_at ON university_package_purchases(deleted_at);
 
--- Professor packages
-CREATE INDEX idx_professor_packages_is_active ON professor_packages(is_active);
-CREATE INDEX idx_professor_packages_deleted_at ON professor_packages(deleted_at);
-
--- University package purchases
-CREATE INDEX idx_university_package_purchases_university_id ON university_package_purchases(university_id);
-CREATE INDEX idx_university_package_purchases_package_id ON university_package_purchases(package_id);
-CREATE INDEX idx_university_package_purchases_payment_status ON university_package_purchases(payment_status);
-CREATE INDEX idx_university_package_purchases_purchased_at ON university_package_purchases(purchased_at);
-CREATE INDEX idx_university_package_purchases_expires_at ON university_package_purchases(expires_at);
-CREATE INDEX idx_university_package_purchases_deleted_at ON university_package_purchases(deleted_at);
-
 -- Categories
 CREATE INDEX idx_categories_university_id ON categories(university_id);
 CREATE INDEX idx_categories_deleted_at ON categories(deleted_at);
@@ -800,7 +785,6 @@ CREATE INDEX idx_funds_code ON funds(code);
 CREATE INDEX idx_funds_organization ON funds(organization);
 CREATE INDEX idx_funds_deadline ON funds(deadline);
 CREATE INDEX idx_funds_internal_deadline ON funds(internal_deadline);
-CREATE INDEX idx_funds_status ON funds(status);
 CREATE INDEX idx_funds_category_id ON funds(category_id);
 CREATE INDEX idx_funds_university_id ON funds(university_id);
 CREATE INDEX idx_funds_created_by ON funds(created_by);
@@ -962,7 +946,7 @@ CREATE INDEX idx_audit_logs_deleted_at ON audit_logs(deleted_at);
 -- Composite indexes for better performance
 CREATE INDEX idx_applications_fund_professor ON applications(fund_id, professor_id);
 CREATE INDEX idx_reviewers_application_reviewer ON reviewers(application_id, reviewer_id);
-CREATE INDEX idx_messages_sender_receiver ON messages(sender_id, receiver_id);
+CREATE INDEX idx_messages_sender ON messages(sender_id);
 CREATE INDEX idx_fund_favorites_user_fund ON fund_favorites(user_id, fund_id);
 
 -- Fulltext search indexes
@@ -975,7 +959,7 @@ CREATE INDEX idx_users_search ON users USING GIN(to_tsvector('english', first_na
 -- VIEWS FOR SIMPLIFIED QUERIES
 -- =====================================================
 
--- View cho danh sách quỹ với thông tin đầy đủ
+-- View for the list of funds with complete information
 CREATE VIEW v_funds_complete AS
 SELECT
     f.id, f.code, f.title, f.title_jp, f.description, f.organization, f.country,
@@ -983,7 +967,7 @@ SELECT
     f.result_announcement, f.research_field, f.funding_period, f.funding_amount,
     f.funding_number, f.important_note, f.remark, f.graduated_student, f.relevancy,
     f.keywords, f.recruitment_requirement_url, f.homepage_url, f.format_file_url,
-    f.example_file_url, f.is_new, f.status, f.created_at, f.updated_at,
+    f.example_file_url, f.is_new, f.created_at, f.updated_at,
     c.name as category_name, c.name_jp as category_name_jp,
     u.name as university_name, u.name_jp as university_name_jp,
     creator.first_name as created_by_name, creator.last_name as created_by_last_name
@@ -993,7 +977,7 @@ LEFT JOIN universities u ON f.university_id = u.id
 LEFT JOIN users creator ON f.created_by = creator.id
 WHERE f.deleted_at IS NULL;
 
--- View cho danh sách đơn ứng tuyển với thông tin đầy đủ
+-- View for the list of applications with complete information
 CREATE VIEW v_applications_complete AS
 SELECT
     a.id, a.submission_count, a.is_final, a.submitted_at,
@@ -1018,7 +1002,7 @@ LEFT JOIN LATERAL (
 ) latest_submission ON true
 WHERE a.deleted_at IS NULL AND f.deleted_at IS NULL AND p.deleted_at IS NULL;
 
--- View cho lịch sử submit của application
+-- View for the history of submissions of an application
 CREATE VIEW v_application_submissions_complete AS
 SELECT
     s.id, s.submission_number, s.is_final, s.submitted_at,
@@ -1040,7 +1024,7 @@ WHERE s.deleted_at IS NULL AND a.deleted_at IS NULL AND f.deleted_at IS NULL AND
 GROUP BY s.id, s.submission_number, s.is_final, s.submitted_at, s.created_at, s.updated_at,
          a.id, a.status, f.title, f.code, p.first_name, p.last_name, p.email;
 
--- View cho danh sách reviewer với thông tin đầy đủ
+-- View for the list of reviewers with complete information
 CREATE VIEW v_reviewers_complete AS
 SELECT
     r.id, r.deadline, r.invited_at, r.agreed_at, r.declined_at, r.submitted_at,
@@ -1057,7 +1041,7 @@ LEFT JOIN users reviewer ON r.reviewer_id = reviewer.id
 WHERE r.deleted_at IS NULL AND a.deleted_at IS NULL AND f.deleted_at IS NULL
   AND p.deleted_at IS NULL AND reviewer.deleted_at IS NULL;
 
--- View cho danh sách reviewer invitations với thông tin đầy đủ
+-- View for the list of reviewer invitations with complete information
 CREATE VIEW v_reviewer_invitations_complete AS
 SELECT
     ri.id, ri.invitation_status, ri.invitation_deadline, ri.review_deadline,
@@ -1078,7 +1062,7 @@ LEFT JOIN users inviter ON ri.invited_by = inviter.id
 WHERE ri.deleted_at IS NULL AND a.deleted_at IS NULL AND f.deleted_at IS NULL
   AND p.deleted_at IS NULL AND reviewer.deleted_at IS NULL AND inviter.deleted_at IS NULL;
 
--- View cho chat topics với thông tin đầy đủ
+-- View for the list of chat topics with complete information
 CREATE VIEW v_chat_topics_complete AS
 SELECT
     ct.id, ct.topic_type, ct.title, ct.description, ct.is_active,
@@ -1098,7 +1082,7 @@ WHERE ct.deleted_at IS NULL AND f.deleted_at IS NULL AND creator.deleted_at IS N
 GROUP BY ct.id, ct.topic_type, ct.title, ct.description, ct.is_active, ct.created_at, ct.updated_at,
          f.id, f.title, f.code, creator.first_name, creator.last_name, creator.email;
 
--- View cho messages với thông tin đầy đủ
+-- View for the list of messages with complete information
 CREATE VIEW v_messages_complete AS
 SELECT
     m.id, m.content, m.message_type, m.is_system_message, m.sent_at,
@@ -1118,7 +1102,7 @@ LEFT JOIN users sender ON m.sender_id = sender.id
 LEFT JOIN message_read_status mrs ON m.id = mrs.message_id
 WHERE m.deleted_at IS NULL AND ct.deleted_at IS NULL AND f.deleted_at IS NULL AND sender.deleted_at IS NULL;
 
--- View cho chat topic participants với thông tin đầy đủ
+-- View for the list of chat topic participants with complete information
 CREATE VIEW v_chat_topic_participants_complete AS
 SELECT
     ctp.id, ctp.role, ctp.can_send_message, ctp.can_see_messages,
@@ -1136,7 +1120,7 @@ LEFT JOIN universities un ON u.university_id = un.id
 WHERE ctp.deleted_at IS NULL AND ct.deleted_at IS NULL AND f.deleted_at IS NULL
   AND u.deleted_at IS NULL AND un.deleted_at IS NULL;
 
--- View cho thông tin university với professor limits
+-- View for the information of universities with professor limits
 CREATE VIEW v_universities_with_professor_limits AS
 SELECT
     u.id, u.name, u.name_jp, u.domain, u.status,
@@ -1153,7 +1137,7 @@ LEFT JOIN professor_packages pp ON upp.package_id = pp.id AND pp.deleted_at IS N
 WHERE u.deleted_at IS NULL
 GROUP BY u.id, u.name, u.name_jp, u.domain, u.status, u.default_professor_limit, u.current_professor_count, u.created_at, u.updated_at;
 
--- View cho notifications với thông tin user
+-- View for the list of notifications with complete information
 CREATE VIEW v_notifications_complete AS
 SELECT
     n.id, n.type, n.title, n.message, n.related_id, n.related_type,
@@ -1170,7 +1154,7 @@ LEFT JOIN users u ON n.user_id = u.id
 LEFT JOIN universities un ON u.university_id = un.id
 WHERE n.deleted_at IS NULL AND u.deleted_at IS NULL;
 
--- View cho user notification preferences với thông tin user
+-- View for the list of user notification preferences with complete information
 CREATE VIEW v_user_notification_preferences_complete AS
 SELECT
     unp.id, unp.notification_type, unp.in_app_enabled, unp.email_enabled,
@@ -1189,7 +1173,7 @@ WHERE unp.deleted_at IS NULL AND u.deleted_at IS NULL;
 -- FUNCTIONS AND TRIGGERS
 -- =====================================================
 
--- Function để tự động cập nhật is_new cho quỹ sau 7 ngày
+-- Function to automatically update is_new for funds after 7 days
 CREATE OR REPLACE FUNCTION update_fund_is_new()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -1200,7 +1184,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Function để tự động cập nhật current_professor_count khi user được tạo/xóa
+-- Function to automatically update current_professor_count when user is created/deleted
 CREATE OR REPLACE FUNCTION update_university_professor_count()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -1236,7 +1220,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Function để tạo audit log
+-- Function to create audit log
 CREATE OR REPLACE FUNCTION create_audit_log()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -1276,10 +1260,10 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Trigger cho is_new
+-- Trigger for is_new
 CREATE TRIGGER update_fund_is_new_trigger BEFORE INSERT OR UPDATE ON funds FOR EACH ROW EXECUTE FUNCTION update_fund_is_new();
 
--- Trigger cho professor count
+-- Trigger for professor count
 CREATE TRIGGER update_university_professor_count_trigger
     AFTER INSERT OR UPDATE OR DELETE ON users
     FOR EACH ROW EXECUTE FUNCTION update_university_professor_count();
@@ -1297,40 +1281,40 @@ CREATE TRIGGER update_university_professor_count_trigger
 -- =====================================================
 
 -- Better Auth tables
-COMMENT ON TABLE users IS 'Better Auth: Bảng lưu trữ thông tin người dùng hệ thống';
-COMMENT ON TABLE sessions IS 'Better Auth: Bảng lưu trữ phiên đăng nhập';
-COMMENT ON TABLE accounts IS 'Better Auth: Bảng lưu trữ tài khoản OAuth và credentials';
-COMMENT ON TABLE verifications IS 'Better Auth: Bảng lưu trữ mã xác minh email và reset password';
+COMMENT ON TABLE users IS 'Better Auth: Table to store user information';
+COMMENT ON TABLE sessions IS 'Better Auth: Table to store session information';
+COMMENT ON TABLE accounts IS 'Better Auth: Table to store OAuth accounts and credentials';
+COMMENT ON TABLE verifications IS 'Better Auth: Table to store email verification codes and reset password codes';
 
 -- Fund management tables
-COMMENT ON TABLE universities IS 'Bảng lưu trữ thông tin các trường đại học';
-COMMENT ON TABLE professor_packages IS 'Bảng lưu trữ các gói professor có thể mua';
-COMMENT ON TABLE university_package_purchases IS 'Bảng lưu trữ lịch sử mua gói professor của các trường';
-COMMENT ON TABLE categories IS 'Bảng lưu trữ danh mục quỹ theo trường đại học';
-COMMENT ON TABLE funds IS 'Bảng lưu trữ thông tin các quỹ nghiên cứu';
-COMMENT ON TABLE fund_tags IS 'Bảng lưu trữ các tags cho quỹ';
-COMMENT ON TABLE fund_tag_relationships IS 'Bảng lưu trữ mối quan hệ giữa quỹ và tags';
-COMMENT ON TABLE applications IS 'Bảng lưu trữ đơn ứng tuyển quỹ';
-COMMENT ON TABLE application_submissions IS 'Bảng lưu trữ lịch sử các lần submit của giáo sư (mỗi lần submit sẽ có tài liệu mới)';
-COMMENT ON TABLE email_notifications IS 'Bảng lưu trữ lịch sử gửi email thông báo';
-COMMENT ON TABLE submission_notification_recipients IS 'Bảng lưu trữ danh sách người nhận thông báo cho mỗi lần submit và trạng thái đã gửi email';
-COMMENT ON TABLE fund_feedback IS 'Bảng lưu trữ feedback của giáo sư về quỹ (Will Apply, Not Apply, Considering)';
-COMMENT ON TABLE application_documents IS 'Bảng lưu trữ tài liệu đính kèm đơn ứng tuyển';
-COMMENT ON TABLE reviewers IS 'Bảng lưu trữ thông tin reviewer cho đơn ứng tuyển';
-COMMENT ON TABLE reviewer_invitations IS 'Bảng lưu trữ lời mời reviewer với deadline và trạng thái';
-COMMENT ON TABLE reviewer_documents IS 'Bảng lưu trữ tài liệu review';
-COMMENT ON TABLE permission_requests IS 'Bảng lưu trữ yêu cầu xin phép sử dụng tài liệu từ người ngoài hệ thống';
-COMMENT ON TABLE chat_topics IS 'Bảng lưu trữ các topic chat (fund_general, professor_staff, professor_reviewer)';
-COMMENT ON TABLE chat_topic_participants IS 'Bảng lưu trữ người tham gia chat topic và quyền hạn của họ';
-COMMENT ON TABLE messages IS 'Bảng lưu trữ tin nhắn chat theo topic';
-COMMENT ON TABLE message_attachments IS 'Bảng lưu trữ file đính kèm tin nhắn';
-COMMENT ON TABLE message_read_status IS 'Bảng lưu trữ trạng thái đã đọc tin nhắn của từng user';
-COMMENT ON TABLE notifications IS 'Bảng lưu trữ thông báo hệ thống cho users';
-COMMENT ON TABLE notification_templates IS 'Bảng lưu trữ templates cho các loại thông báo';
-COMMENT ON TABLE user_notification_preferences IS 'Bảng lưu trữ cài đặt thông báo của từng user';
-COMMENT ON TABLE fund_favorites IS 'Bảng lưu trữ quỹ yêu thích của người dùng';
-COMMENT ON TABLE fund_views IS 'Bảng lưu trữ lịch sử xem quỹ';
-COMMENT ON TABLE audit_logs IS 'Bảng lưu trữ nhật ký thay đổi dữ liệu';
+COMMENT ON TABLE universities IS 'Table to store information of universities';
+COMMENT ON TABLE professor_packages IS 'Table to store information of professor packages';
+COMMENT ON TABLE university_package_purchases IS 'Table to store information of university package purchases';
+COMMENT ON TABLE categories IS 'Table to store information of categories';
+COMMENT ON TABLE funds IS 'Table to store information of funds';
+COMMENT ON TABLE fund_tags IS 'Table to store information of fund tags';
+COMMENT ON TABLE fund_tag_relationships IS 'Table to store information of fund tag relationships';
+COMMENT ON TABLE applications IS 'Table to store information of applications';
+COMMENT ON TABLE application_submissions IS 'Table to store information of application submissions';
+COMMENT ON TABLE email_notifications IS 'Table to store information of email notifications';
+COMMENT ON TABLE submission_notification_recipients IS 'Table to store information of submission notification recipients';
+COMMENT ON TABLE fund_feedback IS 'Table to store information of fund feedback';
+COMMENT ON TABLE application_documents IS 'Table to store information of application documents';
+COMMENT ON TABLE reviewers IS 'Table to store information of reviewers';
+COMMENT ON TABLE reviewer_invitations IS 'Table to store information of reviewer invitations';
+COMMENT ON TABLE reviewer_documents IS 'Table to store information of reviewer documents';
+COMMENT ON TABLE permission_requests IS 'Table to store information of permission requests';
+COMMENT ON TABLE chat_topics IS 'Table to store information of chat topics';
+COMMENT ON TABLE chat_topic_participants IS 'Table to store information of chat topic participants';
+COMMENT ON TABLE messages IS 'Table to store information of messages';
+COMMENT ON TABLE message_attachments IS 'Table to store information of message attachments';
+COMMENT ON TABLE message_read_status IS 'Table to store information of message read status';
+COMMENT ON TABLE notifications IS 'Table to store information of notifications';
+COMMENT ON TABLE notification_templates IS 'Table to store information of notification templates';
+COMMENT ON TABLE user_notification_preferences IS 'Table to store information of user notification preferences';
+COMMENT ON TABLE fund_favorites IS 'Table to store information of fund favorites';
+COMMENT ON TABLE fund_views IS 'Table to store information of fund views';
+COMMENT ON TABLE audit_logs IS 'Table to store information of audit logs';
 
 -- =====================================================
 -- SAMPLE DATA (OPTIONAL)
@@ -1371,9 +1355,9 @@ INSERT INTO fund_tags (name, name_jp, description, color) VALUES
 ('Physics', '物理学', 'Physics and Astronomy', '#ff9ff3');
 
 -- Insert sample funds
-INSERT INTO funds (code, title, organization, deadline, internal_deadline, status, created_by, category_id, university_id) VALUES
-('FUND-001', 'Research Grant 2024', 'JSPS', '2024-12-31', '2024-11-30', 'draft', 'user-2', 1, 1),
-('FUND-002', 'Innovation Award', 'MEXT', '2024-10-31', '2024-09-30', 'internal_public', 'user-2', 2, 1);
+INSERT INTO funds (code, title, organization, deadline, internal_deadline, created_by, category_id, university_id) VALUES
+('FUND-001', 'Research Grant 2024', 'JSPS', '2024-12-31', '2024-11-30', 'user-2', 1, 1),
+('FUND-002', 'Innovation Award', 'MEXT', '2024-10-31', '2024-09-30', 'user-2', 2, 1);
 
 -- Insert sample fund tag relationships
 INSERT INTO fund_tag_relationships (fund_id, tag_id) VALUES
@@ -1387,34 +1371,21 @@ INSERT INTO fund_feedback (fund_id, professor_id, feedback_status, notes) VALUES
 (1, 'user-3', 'will_apply', 'Very interested in this research area'),
 (2, 'user-3', 'considering', 'Need to review requirements more carefully');
 
--- Insert sample application submissions
-INSERT INTO application_submissions (application_id, submission_number, is_final, submitted_at) VALUES
-(1, 1, false, '2024-01-15 10:00:00'),
-(1, 2, false, '2024-01-20 14:30:00'),
-(1, 3, true, '2024-01-25 16:45:00');
-
 -- Insert sample email notifications
 INSERT INTO email_notifications (recipient_email, recipient_name, subject, content, notification_type, related_entity_type, related_entity_id) VALUES
 ('reviewer1@example.com', 'Reviewer One', 'New Application Submission', 'A new application has been submitted...', 'application_submitted', 'application', 1),
 ('staff@u-tokyo.ac.jp', 'Staff User', 'Application Updated', 'An application has been updated...', 'application_updated', 'application', 1);
 
--- Insert sample submission notification recipients
-INSERT INTO submission_notification_recipients (submission_id, recipient_type, recipient_id, recipient_email, recipient_name, notification_sent, notified_at) VALUES
-(1, 'reviewer', 'user-4', 'reviewer1@example.com', 'Reviewer One', true, '2024-01-15 10:05:00'),
-(1, 'staff', 'user-2', 'staff@u-tokyo.ac.jp', 'Staff User', true, '2024-01-15 10:05:00'),
-(2, 'reviewer', 'user-4', 'reviewer1@example.com', 'Reviewer One', false, NULL),
-(2, 'staff', 'user-2', 'staff@u-tokyo.ac.jp', 'Staff User', true, '2024-01-20 14:35:00');
-
 -- Insert sample notification templates
 INSERT INTO notification_templates (type, title_template, message_template, email_subject_template, email_body_template) VALUES
-('user_registration', 'Chào mừng {user_name} đến với hệ thống', 'Tài khoản của bạn đã được tạo thành công. Vui lòng xác minh email để kích hoạt tài khoản.', 'Chào mừng đến với Fund Management System', 'Xin chào {user_name},<br><br>Tài khoản của bạn đã được tạo thành công...'),
-('fund_created', 'Quỹ mới: {fund_title}', 'Quỹ {fund_title} đã được tạo bởi {created_by}. Vui lòng kiểm tra và phê duyệt.', 'Quỹ mới: {fund_title}', 'Quỹ {fund_title} đã được tạo...'),
-('application_submitted', 'Đơn ứng tuyển mới: {fund_title}', 'Giáo sư {professor_name} đã nộp đơn ứng tuyển cho quỹ {fund_title}.', 'Đơn ứng tuyển mới: {fund_title}', 'Giáo sư {professor_name} đã nộp đơn...'),
-('reviewer_invited', 'Lời mời review: {fund_title}', 'Bạn đã được mời review đơn ứng tuyển cho quỹ {fund_title}. Deadline: {deadline}', 'Lời mời review: {fund_title}', 'Bạn đã được mời review...'),
-('review_submitted', 'Review đã được nộp: {fund_title}', 'Reviewer {reviewer_name} đã nộp đánh giá cho đơn ứng tuyển {fund_title}.', 'Review đã được nộp: {fund_title}', 'Reviewer {reviewer_name} đã nộp...'),
-('application_status_changed', 'Trạng thái đơn ứng tuyển thay đổi: {fund_title}', 'Đơn ứng tuyển {fund_title} đã chuyển từ {old_status} sang {new_status}.', 'Trạng thái đơn ứng tuyển thay đổi', 'Đơn ứng tuyển {fund_title} đã chuyển...'),
-('deadline_reminder', 'Nhắc nhở deadline: {fund_title}', 'Quỹ {fund_title} sẽ hết hạn vào {deadline}. Vui lòng hoàn thành đơn ứng tuyển.', 'Nhắc nhở deadline: {fund_title}', 'Quỹ {fund_title} sẽ hết hạn...'),
-('system_alert', 'Thông báo hệ thống: {title}', '{message}', 'Thông báo hệ thống: {title}', '{message}');
+('user_registration', 'Welcome {user_name} to the system', 'Your account has been created successfully. Please verify your email to activate your account.', 'Welcome to Fund Management System', 'Hello {user_name},<br><br>Your account has been created successfully...'),
+('fund_created', 'New fund: {fund_title}', 'Fund {fund_title} has been created by {created_by}. Please check and approve.', 'New fund: {fund_title}', 'Fund {fund_title} has been created...'),
+('application_submitted', 'New application: {fund_title}', 'Professor {professor_name} has submitted an application for fund {fund_title}.', 'New application: {fund_title}', 'Professor {professor_name} has submitted an application...'),
+('reviewer_invited', 'Reviewer invited: {fund_title}', 'You have been invited to review the application for fund {fund_title}. Deadline: {deadline}', 'Reviewer invited: {fund_title}', 'You have been invited to review...'),
+('review_submitted', 'Review submitted: {fund_title}', 'Reviewer {reviewer_name} has submitted the evaluation for application {fund_title}.', 'Review submitted: {fund_title}', 'Reviewer {reviewer_name} has submitted...'),
+('application_status_changed', 'Application status changed: {fund_title}', 'Application {fund_title} has been changed from {old_status} to {new_status}.', 'Application status changed', 'Application {fund_title} has been changed...'),
+('deadline_reminder', 'Deadline reminder: {fund_title}', 'Fund {fund_title} will expire on {deadline}. Please complete the application.', 'Deadline reminder: {fund_title}', 'Fund {fund_title} will expire...'),
+('system_alert', 'System alert: {title}', '{message}', 'System alert: {title}', '{message}');
 
 -- Insert sample user notification preferences
 INSERT INTO user_notification_preferences (user_id, notification_type, in_app_enabled, email_enabled) VALUES
@@ -1445,27 +1416,27 @@ INSERT INTO user_notification_preferences (user_id, notification_type, in_app_en
 
 -- Insert sample notifications
 INSERT INTO notifications (user_id, type, title, message, related_id, related_type, is_read, is_email_sent) VALUES
-('user-2', 'application_submitted', 'Đơn ứng tuyển mới: Research Grant 2024', 'Giáo sư Professor User đã nộp đơn ứng tuyển cho quỹ Research Grant 2024.', 1, 'application', false, true),
-('user-3', 'reviewer_invited', 'Lời mời review: Research Grant 2024', 'Bạn đã được mời review đơn ứng tuyển cho quỹ Research Grant 2024. Deadline: 2024-02-15', 1, 'application', false, false),
-('user-1', 'fund_created', 'Quỹ mới: Innovation Award', 'Quỹ Innovation Award đã được tạo bởi Staff User. Vui lòng kiểm tra và phê duyệt.', 2, 'fund', true, true);
+('user-2', 'application_submitted', 'New application: Research Grant 2024', 'Professor Professor User has submitted an application for fund Research Grant 2024.', 1, 'application', false, true),
+('user-3', 'reviewer_invited', 'Reviewer invited: Research Grant 2024', 'You have been invited to review the application for fund Research Grant 2024. Deadline: 2024-02-15', 1, 'application', false, false),
+('user-1', 'fund_created', 'New fund: Innovation Award', 'Fund Innovation Award has been created by Staff User. Please check and approve.', 2, 'fund', true, true);
 
 -- Insert sample chat topics
 INSERT INTO chat_topics (fund_id, topic_type, title, description, created_by) VALUES
-(1, 'fund_general', 'Research Grant 2024 - General Discussion', 'Chat chung cho quỹ Research Grant 2024', 'user-2'),
-(1, 'professor_staff', 'Research Grant 2024 - Professor-Staff Chat', 'Chat riêng giữa giáo sư và staff phụ trách', 'user-2'),
-(1, 'professor_reviewer', 'Research Grant 2024 - Professor-Reviewer Chat', 'Chat riêng giữa giáo sư và reviewer', 'user-3'),
-(2, 'fund_general', 'Innovation Award - General Discussion', 'Chat chung cho quỹ Innovation Award', 'user-2');
+(1, 'fund_general', 'Research Grant 2024 - General Discussion', 'General chat for fund Research Grant 2024', 'user-2'),
+(1, 'professor_staff', 'Research Grant 2024 - Professor-Staff Chat', 'Private chat between professor and staff', 'user-2'),
+(1, 'professor_reviewer', 'Research Grant 2024 - Professor-Reviewer Chat', 'Private chat between professor and reviewer', 'user-3'),
+(2, 'fund_general', 'Innovation Award - General Discussion', 'General chat for fund Innovation Award', 'user-2');
 
 -- Insert sample chat topic participants
 INSERT INTO chat_topic_participants (topic_id, user_id, role) VALUES
--- Fund general chat (tất cả có thể tham gia)
+-- Fund general chat (all can join)
 (1, 'user-1', 'admin'),
 (1, 'user-2', 'staff'),
 (1, 'user-3', 'professor'),
--- Professor-Staff chat (chỉ giáo sư và staff phụ trách)
+-- Professor-Staff chat (only professor and staff can join)
 (2, 'user-2', 'staff'),
 (2, 'user-3', 'professor'),
--- Professor-Reviewer chat (chỉ giáo sư và reviewer do giáo sư mời)
+-- Professor-Reviewer chat (only professor and reviewer invited by professor can join)
 (3, 'user-3', 'professor'),
 -- Innovation Award general chat
 (4, 'user-1', 'admin'),
@@ -1473,12 +1444,12 @@ INSERT INTO chat_topic_participants (topic_id, user_id, role) VALUES
 
 -- Insert sample messages
 INSERT INTO messages (topic_id, sender_id, content, message_type) VALUES
-(1, 'user-2', 'Chào mừng tất cả đến với chat chung của quỹ Research Grant 2024!', 'system'),
-(1, 'user-3', 'Cảm ơn! Tôi có một số câu hỏi về yêu cầu của quỹ này.', 'text'),
-(1, 'user-2', 'Vui lòng hỏi, tôi sẽ trả lời ngay.', 'text'),
-(2, 'user-3', 'Xin chào, tôi muốn trao đổi về đơn ứng tuyển của mình.', 'text'),
-(2, 'user-2', 'Chào bạn! Tôi đã nhận được đơn ứng tuyển và đang xem xét.', 'text'),
-(3, 'user-3', 'Cảm ơn bạn đã nhận lời review. Tôi rất mong nhận được phản hồi.', 'text');
+(1, 'user-2', 'Welcome to the general chat of the Research Grant 2024!', 'system'),
+(1, 'user-3', 'Thank you! I have some questions about the requirements of this fund.', 'text'),
+(1, 'user-2', 'Please ask, I will answer right away.', 'text'),
+(2, 'user-3', 'Hello, I want to discuss my application.', 'text'),
+(2, 'user-2', 'Hello! I have received your application and am reviewing it.', 'text'),
+(3, 'user-3', 'Thank you for accepting my review. I look forward to your feedback.', 'text');
 
 -- Insert sample message read status
 INSERT INTO message_read_status (message_id, user_id) VALUES

@@ -1,31 +1,31 @@
 services:
-  app:
-    image: nestjs-boilerplate-server:latest
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - IS_WORKER=false
-    ports:
-      - '${APP_PORT}:${APP_PORT}'
-    networks:
-      - my-nestjs-network
-    depends_on:
-      - redis
+  # app:
+  #   image: nestjs-boilerplate-server:latest
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - IS_WORKER=false
+  #   ports:
+  #     - '${APP_PORT}:${APP_PORT}'
+  #   networks:
+  #     - my-nestjs-network
+  #   depends_on:
+  #     - redis
 
-  worker:
-    image: nestjs-boilerplate-worker:latest
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - IS_WORKER=true
-    ports:
-      - '${APP_WORKER_PORT}:${APP_WORKER_PORT}'
-    networks:
-      - my-nestjs-network
-    depends_on:
-      - redis
+  # worker:
+  #   image: nestjs-boilerplate-worker:latest
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - IS_WORKER=true
+  #   ports:
+  #     - '${APP_WORKER_PORT}:${APP_WORKER_PORT}'
+  #   networks:
+  #     - my-nestjs-network
+  #   depends_on:
+  #     - redis
 
   redis:
     image: redis:7.0.1-alpine
