@@ -40,8 +40,8 @@ COPY --chown=node:node --from=development /app/.env ./.env
 RUN pnpm build
 
 # Run migrations & seeds
-RUN pnpm migration:up
-RUN pnpm seed:run
+# RUN pnpm migration:up
+# RUN pnpm seed:run
 
 # Removes unnecessary packages and re-install only production dependencies
 ENV NODE_ENV production

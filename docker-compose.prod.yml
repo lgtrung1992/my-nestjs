@@ -1,10 +1,189 @@
 services:
-  server:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - IS_WORKER=false
+    ports:
+      - '${APP_PORT}:${APP_PORT}'
+    networks:
+      - my-nestjs-network
+    depends_on:
+      - redis
 
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  # worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - IS_WORKER=true
+  #   ports:
+  #     - '${APP_WORKER_PORT}:${APP_WORKER_PORT}'
+  #   networks:
+  #     - my-nestjs-network
+  #   depends_on:
+  #     - redis
+
+  redis:
+    image: redis:7.0.1-alpine
+    restart: unless-stopped
+    ports:
+      - '${DOCKER_REDIS_PORT}:6379'
+    env_file:
+      - .env
+    environment:
+      REDIS_ARGS: '--requirepass ${REDIS_PASSWORD}'
+    volumes:
+      - ./.docker/redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+    command: 'redis-server --save 120 1 --loglevel warning'
+    networks:
+      - my-nestjs-network
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: '${DATABASE_USERNAME}'
+      POSTGRES_PASSWORD: '${DATABASE_PASSWORD}'
+      POSTGRES_DB: '${DATABASE_NAME}'
+      TZ: 'UTC'
+    ports:
+      - '${DOCKER_DATABASE_PORT}:5432'
+    volumes:
+      - ./.docker/postgres_data:/var/lib/postgresql/data
+    networks:
+      - my-nestjs-network
+
+  mail:
+    image: axllent/mailpit
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - ${DOCKER_MAIL_PORT}:1025
+      - ${DOCKER_MAIL_CLIENT_PORT}:8025
+    networks:
+      - my-nestjs-network
+
+  # schemaspy:
+  #   image: schemaspy/schemaspy:latest
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./docs/schemaspy.properties:/schemaspy.properties
+  #     - ./docs/db_schema_diagram:/output
+  #     - ./docs/drivers:/drivers
+  #   command: -configFile /schemaspy.properties -debug
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   networks:
+  #     - my-nestjs-network
+  #   restart: "no"
+
+  # prometheus:
+  #   image: prom/prometheus:v3.0.1
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - ${DOCKER_PROMETHEUS_PORT}:9090
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yaml'
+  #   volumes:
+  #     - ./prometheus.config.yml:/etc/prometheus/prometheus.yaml:ro
+  #   networks:
+  #     - my-nestjs-network
+  #   profiles:
+  #     - monitoring
+  #   depends_on:
+  #     - setup_prometheus
+
+  # grafana:
+  #   image: grafana/grafana-oss:11.3.1
+  #   restart: unless-stopped
+  #   ports:
+  #     - '${DOCKER_GRAFANA_PORT}:3000'
+  #   env_file:
+  #     - .env
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+  #   volumes:
+  #     - ./src/tools/grafana/provisioning:/etc/grafana/provisioning
+  #     - ./src/tools/grafana/dashboards:/var/lib/grafana/dashboards
+  #   networks:
+  #     - my-nestjs-network
+  #   profiles:
+  #     - monitoring
+  #   depends_on:
+  #     - prometheus
+  #     - setup_grafana
+
+  # postgres-exporter:
+  #   image: prometheuscommunity/postgres-exporter
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - ${DOCKER_PG_EXPORTER}:9187
+  #   environment:
+  #     DATA_SOURCE_NAME: 'postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?sslmode=${DATABASE_SSL_MODE:-disable}'
+  #   networks:
+  #     - my-nestjs-network
+  #   profiles:
+  #     - monitoring
+  #   depends_on:
+  #     - prometheus
+
+  # # Solution to fix prometheus volume permission issue
+  # setup_prometheus:
+  #   image: prom/prometheus:v3.0.1
+  #   restart: no
+  #   user: root
+  #   env_file:
+  #     - .env
+  #   entrypoint:
+  #     - /bin/sh
+  #     - -c
+  #     - |
+  #       chown -R 65534:65534 /prometheus
+  #   volumes:
+  #     - ./.docker/prometheus-data:/prometheus
+  #   profiles:
+  #     - monitoring
+
+  # # Solution to fix grafana volume permission issue
+  # setup_grafana:
+  #   image: grafana/grafana-oss:11.3.1
+  #   restart: no
+  #   user: root
+  #   env_file:
+  #     - .env
+  #   entrypoint:
+  #     - /bin/sh
+  #     - -c
+  #     - |
+  #       chown -R 65534:65534 /var/lib/grafana
+  #   volumes:
+  #     - ./.docker/grafana-data:/var/lib/grafana
+  #   profiles:
+  #     - monitoring
+
+networks:
+  my-nestjs-network:
+    name: my-nestjs-network
+    driver: bridge

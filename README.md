@@ -23,10 +23,8 @@ A comprehensive, production-ready Nest.js boilerplate designed for scalable appl
    ```bash
    # Copy environment files
    cp .env.example .env
-   cp .env.docker.example .env.docker
    
    # Edit .env with your local settings
-   # Edit .env.docker for Docker-specific settings
    ```
 
 3. **Start Development Environment**
@@ -258,7 +256,7 @@ To enable Prometheus and Grafana monitoring:
 
 1. **Update environment configuration**:
    ```bash
-   # In .env.docker
+   # In .env
    COMPOSE_PROFILES=monitoring
    ```
 
