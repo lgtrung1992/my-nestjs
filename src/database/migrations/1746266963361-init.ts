@@ -41,7 +41,6 @@ export class Init1746266963361 implements MigrationInterface {
                 "department" character varying,
                 "position" character varying,
                 "research_field" character varying,
-                "two_factor_enabled" boolean NOT NULL DEFAULT false,
                 CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id")
             )
         `);

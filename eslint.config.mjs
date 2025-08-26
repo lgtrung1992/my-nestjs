@@ -15,7 +15,7 @@ export default tsEslint.config({
       sourceType: 'module',
     },
   },
-  ignores: ['eslint.config.mjs'],
+  ignores: ['eslint.config.mjs', 'database/migrations/**/*.ts', 'database/seeds/**/*.ts'],
   rules: {
     "no-console": ["warn", {
       allow: ["warn", "error"],

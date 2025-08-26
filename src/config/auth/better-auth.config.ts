@@ -44,9 +44,42 @@ export function getConfig({
         }
       },
     }),
-    twoFactor(),
+    twoFactor({
+      schema: {
+        user: {
+          fields: {
+            twoFactorEnabled: 'two_factor_enabled',
+          },
+        },
+        twoFactor: {
+          modelName: 'two_factors',
+          fields: {
+            userId: 'user_id',
+            secret: 'secret',
+            backupCodes: 'backup_codes',
+          },
+        },
+      },
+    }),
     passkey({
       rpName: appConfig.name,
+      schema: {
+        passkey: {
+          modelName: 'passkeys',
+          fields: {
+            name: 'name',
+            userId: 'user_id',
+            publicKey: 'public_key',
+            credentialID: 'credential_id',
+            counter: 'counter',
+            deviceType: 'device_type',
+            backedUp: 'backed_up',
+            transports: 'transports',
+            aaguid: 'aaguid',
+            createdAt: 'created_at',
+          },
+        },
+      },
     }),
   ];
 
@@ -216,8 +249,7 @@ export function getConfig({
     },
     trustedOrigins: appConfig.corsOrigin as string[],
     socialProviders: {
-      ...(authConfig.oAuth.github?.clientId &&
-      authConfig.oAuth.github?.clientSecret
+      ...(authConfig.oAuth.github?.clientId && authConfig.oAuth.github?.clientSecret
         ? {
             github: {
               clientId: authConfig.oAuth.github?.clientId,
@@ -249,9 +281,7 @@ export function getConfig({
     // Use Redis for storing sessions
     secondaryStorage: {
       get: async (key) => {
-        return (
-          (await cacheService.get({ key: 'AccessToken', args: [key] })) ?? null
-        );
+        return (await cacheService.get({ key: 'AccessToken', args: [key] })) ?? null;
       },
       set: async (key, value, ttl) => {
         await cacheService.set(

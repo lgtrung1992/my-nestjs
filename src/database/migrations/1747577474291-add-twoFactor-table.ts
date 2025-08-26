@@ -20,6 +20,11 @@ export class AddTwoFactorTable1747577474291 implements MigrationInterface {
             ALTER TABLE "two_factors"
             ADD CONSTRAINT "FK_03fe91172968ed69813bc6ff0bd" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
+
+    await queryRunner.query(`
+            ALTER TABLE "users"
+            ADD COLUMN "two_factor_enabled" boolean NULL DEFAULT false
+        `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -28,6 +33,9 @@ export class AddTwoFactorTable1747577474291 implements MigrationInterface {
         `);
     await queryRunner.query(`
             DROP TABLE "two_factors"
+        `);
+    await queryRunner.query(`
+            ALTER TABLE "users" DROP COLUMN "two_factor_enabled"
         `);
   }
 }

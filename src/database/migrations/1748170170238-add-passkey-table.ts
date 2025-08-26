@@ -18,6 +18,7 @@ export class AddPasskeyTable1748170170238 implements MigrationInterface {
                 "device_type" character varying NOT NULL,
                 "backed_up" boolean NOT NULL,
                 "transports" character varying NOT NULL,
+                "aaguid" character varying NULL,
                 CONSTRAINT "PK_783e2060d8025abd6a6ca45d2c7" PRIMARY KEY ("id")
             )
         `);

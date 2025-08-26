@@ -1,11 +1,5 @@
 import { plainToInstance } from 'class-transformer';
-import {
-  BaseEntity,
-  CreateDateColumn,
-  DeleteDateColumn,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export abstract class BaseModel extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
