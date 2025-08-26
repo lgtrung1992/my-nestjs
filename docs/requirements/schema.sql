@@ -14,23 +14,19 @@ CREATE TYPE user_role AS ENUM (
     'superAdmin',
     'admin',
     'staff',
-    'professor',
-    'reviewer'
+    'professor'
 );
 
 -- User statuses
 CREATE TYPE user_status AS ENUM (
     'active',
-    'inactive',
-    'suspended',
-    'pending'
+    'inactive'
 );
 
 -- Fund statuses
 CREATE TYPE fund_status AS ENUM (
     'draft',
     'internal_public',
-    'internal_application_period',
     'internal_deadline_passed',
     'external_application_period',
     'external_deadline_passed',
@@ -49,49 +45,43 @@ CREATE TYPE application_status AS ENUM (
     'rejected'
 );
 
--- Reviewer statuses
-CREATE TYPE reviewer_status AS ENUM (
+-- Review statuses
+CREATE TYPE review_status AS ENUM (
     'invited',
     'agreed',
     'declined',
-    'review_submitted',
-    'document_updated',
-    'document_updated_final'
+    'review_finished',
+    'review_cancelled'
 );
 
 -- Fund difficulties
 CREATE TYPE fund_difficulty AS ENUM (
     'unknown',
-    'easy',
-    'somewhat_easy',
     'normal',
-    'somewhat_hard',
-    'hard'
+    'hard',
+    'very_hard'
 );
 
 -- Relevancy levels
 CREATE TYPE relevancy_level AS ENUM (
-    'ai_checking',
     'relevant',
-    'somewhat_relevant',
     'neutral',
-    'somewhat_irrelevant',
     'irrelevant'
 );
 
 -- Document types
-CREATE TYPE document_type AS ENUM (
-    'recruitment_requirement',
-    'format_file',
-    'entry_example_file',
-    'application_document',
-    'review_document',
-    'reference_document',
-    'cv',
-    'proposal',
-    'budget',
-    'other'
-);
+-- CREATE TYPE document_type AS ENUM (
+--     'recruitment_requirement',
+--     'format_file',
+--     'entry_example_file',
+--     'application_document',
+--     'review_document',
+--     'reference_document',
+--     'cv',
+--     'proposal',
+--     'budget',
+--     'other'
+-- );
 
 -- Permission request status
 CREATE TYPE permission_request_status AS ENUM (
@@ -112,7 +102,6 @@ CREATE TYPE invitation_status AS ENUM (
 -- Fund feedback status
 CREATE TYPE fund_feedback_status AS ENUM (
     'will_apply',
-    'not_apply',
     'considering'
 );
 
@@ -139,17 +128,17 @@ CREATE TYPE message_type AS ENUM (
 CREATE TYPE chat_topic_type AS ENUM (
     'fund_general',      -- General chat for the fund
     'professor_staff',   -- Chat between professor and staff
-    'professor_reviewer' -- Chat between professor and reviewer
+    'professor_reviewer', -- Chat between professor and reviewer
+    'staff_reviewer' -- Chat between staff and reviewer
 );
 
--- University status
-CREATE TYPE university_status AS ENUM (
+-- organization status
+CREATE TYPE organization_status AS ENUM (
     'active',
-    'inactive',
-    'suspended'
+    'inactive'
 );
 
--- Payment status for university package purchases
+-- Payment status for organization package purchases
 CREATE TYPE payment_status AS ENUM (
     'pending',
     'completed',
@@ -163,7 +152,7 @@ CREATE TYPE payment_status AS ENUM (
 
 -- Users (Better Auth core table)
 CREATE TABLE users (
-    id VARCHAR(255) PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255),
     username VARCHAR(100) UNIQUE,
@@ -171,10 +160,11 @@ CREATE TABLE users (
     is_email_verified BOOLEAN DEFAULT FALSE,
     image VARCHAR(500),
     role user_role DEFAULT 'professor',
-    university_id BIGINT,
+    organization_id BIGINT,
     status user_status DEFAULT 'pending',
     last_login_at TIMESTAMP,
-    -- Extended user information (moved from user_profiles)
+    two_factor_enabled BOOLEAN DEFAULT FALSE,
+    -- Extended user information
     phone VARCHAR(50),
     address TEXT,
     bio TEXT,
@@ -188,7 +178,7 @@ CREATE TABLE users (
 
 -- Sessions (Better Auth core table)
 CREATE TABLE sessions (
-    id VARCHAR(255) PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id VARCHAR(255) NOT NULL,
     token VARCHAR(255) UNIQUE NOT NULL,
     expires_at TIMESTAMP NOT NULL,
@@ -203,7 +193,7 @@ CREATE TABLE sessions (
 
 -- Accounts (Better Auth core table)
 CREATE TABLE accounts (
-    id VARCHAR(255) PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id VARCHAR(255) NOT NULL,
     account_id VARCHAR(255) NOT NULL,
     provider_id VARCHAR(255) NOT NULL,
@@ -223,7 +213,7 @@ CREATE TABLE accounts (
 
 -- Verifications (Better Auth core table)
 CREATE TABLE verifications (
-    id VARCHAR(255) PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     identifier VARCHAR(255) NOT NULL,
     value VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
@@ -232,12 +222,42 @@ CREATE TABLE verifications (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Two factors
+CREATE TABLE two_factors (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMP,
+    user_id uuid NOT NULL,
+    secret character varying,
+    backup_codes character varying,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Passkeys
+CREATE TABLE passkeys (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMP,
+    name VARCHAR(255),
+    user_id uuid NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    public_key VARCHAR(255) NOT NULL,
+    credential_id VARCHAR(255) NOT NULL,
+    counter integer NOT NULL,
+    device_type VARCHAR(255) NOT NULL,
+    backed_up BOOLEAN NOT NULL,
+    transports VARCHAR(255) NOT NULL,
+    aaguid VARCHAR(255) NULL,
+);
+
 -- =====================================================
 -- FUND MANAGEMENT SYSTEM TABLES
 -- =====================================================
 
--- Universities
-CREATE TABLE universities (
+-- organizations
+CREATE TABLE organizations (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     name_jp VARCHAR(255),
@@ -247,7 +267,7 @@ CREATE TABLE universities (
     email VARCHAR(255),
     website VARCHAR(500),
     logo_url VARCHAR(500),
-    status university_status DEFAULT 'active',
+    status organization_status DEFAULT 'active',
     -- Professor management fields
     default_professor_limit INTEGER DEFAULT 10,
     current_professor_count INTEGER DEFAULT 0,
@@ -272,10 +292,10 @@ CREATE TABLE professor_packages (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- University package purchases
-CREATE TABLE university_package_purchases (
+-- organization package purchases
+CREATE TABLE organization_package_purchases (
     id BIGSERIAL PRIMARY KEY,
-    university_id BIGINT NOT NULL,
+    organization_id BIGINT NOT NULL,
     package_id BIGINT NOT NULL,
     purchased_by VARCHAR(255) NOT NULL, -- admin who made the purchase
     quantity INTEGER DEFAULT 1,
@@ -291,7 +311,7 @@ CREATE TABLE university_package_purchases (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (university_id) REFERENCES universities(id) ON DELETE CASCADE,
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
     FOREIGN KEY (package_id) REFERENCES professor_packages(id),
     FOREIGN KEY (purchased_by) REFERENCES users(id)
 );
@@ -302,12 +322,12 @@ CREATE TABLE categories (
     name VARCHAR(255) NOT NULL,
     name_jp VARCHAR(255),
     description TEXT,
-    university_id BIGINT NOT NULL,
+    organization_id BIGINT NOT NULL,
     deleted_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (university_id) REFERENCES universities(id) ON DELETE CASCADE
+    FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE
 );
 
 -- Funds
@@ -318,7 +338,7 @@ CREATE TABLE funds (
     title_jp VARCHAR(500),
     description TEXT,
     category_id BIGINT NOT NULL,
-    university_id BIGINT NOT NULL,
+    organization_id BIGINT NOT NULL,
     organization VARCHAR(255) NOT NULL,
     country VARCHAR(100),
     program_type VARCHAR(255),
@@ -347,7 +367,7 @@ CREATE TABLE funds (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (category_id) REFERENCES categories(id),
-    FOREIGN KEY (university_id) REFERENCES universities(id),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id),
     FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
@@ -467,7 +487,7 @@ CREATE TABLE fund_feedback (
 CREATE TABLE application_documents (
     id BIGSERIAL PRIMARY KEY,
     application_id BIGINT NOT NULL,
-    document_type document_type NOT NULL,
+    -- document_type document_type NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     file_url VARCHAR(500) NOT NULL,
     file_size BIGINT,
@@ -482,8 +502,8 @@ CREATE TABLE application_documents (
 CREATE TABLE reviewers (
     id BIGSERIAL PRIMARY KEY,
     application_id BIGINT NOT NULL,
-    reviewer_id VARCHAR(255) NOT NULL,
-    status reviewer_status NOT NULL DEFAULT 'invited',
+    user_id uuid NOT NULL,
+    status review_status NOT NULL DEFAULT 'invited',
     deadline TIMESTAMP NOT NULL,
     invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     agreed_at TIMESTAMP,
@@ -494,16 +514,16 @@ CREATE TABLE reviewers (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
-    FOREIGN KEY (reviewer_id) REFERENCES users(id),
-    UNIQUE(application_id, reviewer_id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(application_id, user_id)
 );
 
 -- Reviewer invitations (new table for invitation management)
 CREATE TABLE reviewer_invitations (
     id BIGSERIAL PRIMARY KEY,
     application_id BIGINT NOT NULL,
-    reviewer_id VARCHAR(255) NOT NULL,
-    invited_by VARCHAR(255) NOT NULL, -- professor or staff who sent invitation
+    reviewer_id uuid NOT NULL,
+    invited_by uuid NOT NULL, -- professor or staff who sent invitation
     invitation_status invitation_status DEFAULT 'pending',
     invitation_deadline TIMESTAMP NOT NULL, -- 1 week from invitation
     review_deadline TIMESTAMP NOT NULL, -- 2 weeks from acceptance
@@ -516,16 +536,16 @@ CREATE TABLE reviewer_invitations (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE,
-    FOREIGN KEY (reviewer_id) REFERENCES users(id),
-    FOREIGN KEY (invited_by) REFERENCES users(id),
+    FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE(application_id, reviewer_id)
 );
 
 -- Reviewer documents
 CREATE TABLE reviewer_documents (
     id BIGSERIAL PRIMARY KEY,
-    reviewer_id BIGINT NOT NULL,
-    document_type document_type NOT NULL,
+    reviewer_id uuid NOT NULL,
+    -- document_type document_type NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     file_url VARCHAR(500) NOT NULL,
     file_size BIGINT,
@@ -533,7 +553,8 @@ CREATE TABLE reviewer_documents (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
 
-    FOREIGN KEY (reviewer_id) REFERENCES reviewers(id) ON DELETE CASCADE
+    FOREIGN KEY (reviewer_id) REFERENCES reviewers(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Chat topics
@@ -557,7 +578,7 @@ CREATE TABLE chat_topics (
 CREATE TABLE chat_topic_participants (
     id BIGSERIAL PRIMARY KEY,
     topic_id BIGINT NOT NULL,
-    user_id VARCHAR(255) NOT NULL,
+    user_id uuid NOT NULL,
     role VARCHAR(50) NOT NULL, -- 'professor', 'staff', 'reviewer'
     can_send_message BOOLEAN DEFAULT TRUE,
     can_see_messages BOOLEAN DEFAULT TRUE,
@@ -703,22 +724,10 @@ CREATE TABLE permission_requests (
     FOREIGN KEY (requested_by) REFERENCES users(id)
 );
 
--- Fund views
-CREATE TABLE fund_views (
-    id BIGSERIAL PRIMARY KEY,
-    user_id VARCHAR(255) NOT NULL,
-    fund_id BIGINT NOT NULL,
-    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
-
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (fund_id) REFERENCES funds(id) ON DELETE CASCADE
-);
-
 -- Audit logs
 CREATE TABLE audit_logs (
     id BIGSERIAL PRIMARY KEY,
-    user_id VARCHAR(255),
+    user_id uuid,
     action VARCHAR(100) NOT NULL,
     table_name VARCHAR(100) NOT NULL,
     record_id BIGINT,
@@ -740,7 +749,7 @@ CREATE TABLE audit_logs (
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_role ON users(role);
-CREATE INDEX idx_users_university_id ON users(university_id);
+CREATE INDEX idx_users_organization_id ON users(organization_id);
 CREATE INDEX idx_users_status ON users(status);
 CREATE INDEX idx_users_last_login_at ON users(last_login_at);
 CREATE INDEX idx_users_deleted_at ON users(deleted_at);
@@ -759,25 +768,25 @@ CREATE INDEX idx_verifications_identifier ON verifications(identifier);
 CREATE INDEX idx_verifications_expires_at ON verifications(expires_at);
 CREATE INDEX idx_verifications_deleted_at ON verifications(deleted_at);
 
--- Universities
-CREATE INDEX idx_universities_domain ON universities(domain);
-CREATE INDEX idx_universities_status ON universities(status);
-CREATE INDEX idx_universities_deleted_at ON universities(deleted_at);
+-- organizations
+CREATE INDEX idx_organizations_domain ON organizations(domain);
+CREATE INDEX idx_organizations_status ON organizations(status);
+CREATE INDEX idx_organizations_deleted_at ON organizations(deleted_at);
 
 -- Professor packages
 CREATE INDEX idx_professor_packages_is_active ON professor_packages(is_active);
 CREATE INDEX idx_professor_packages_deleted_at ON professor_packages(deleted_at);
 
--- University package purchases
-CREATE INDEX idx_university_package_purchases_university_id ON university_package_purchases(university_id);
-CREATE INDEX idx_university_package_purchases_package_id ON university_package_purchases(package_id);
-CREATE INDEX idx_university_package_purchases_payment_status ON university_package_purchases(payment_status);
-CREATE INDEX idx_university_package_purchases_purchased_at ON university_package_purchases(purchased_at);
-CREATE INDEX idx_university_package_purchases_expires_at ON university_package_purchases(expires_at);
-CREATE INDEX idx_university_package_purchases_deleted_at ON university_package_purchases(deleted_at);
+-- organization package purchases
+CREATE INDEX idx_organization_package_purchases_organization_id ON organization_package_purchases(organization_id);
+CREATE INDEX idx_organization_package_purchases_package_id ON organization_package_purchases(package_id);
+CREATE INDEX idx_organization_package_purchases_payment_status ON organization_package_purchases(payment_status);
+CREATE INDEX idx_organization_package_purchases_purchased_at ON organization_package_purchases(purchased_at);
+CREATE INDEX idx_organization_package_purchases_expires_at ON organization_package_purchases(expires_at);
+CREATE INDEX idx_organization_package_purchases_deleted_at ON organization_package_purchases(deleted_at);
 
 -- Categories
-CREATE INDEX idx_categories_university_id ON categories(university_id);
+CREATE INDEX idx_categories_organization_id ON categories(organization_id);
 CREATE INDEX idx_categories_deleted_at ON categories(deleted_at);
 
 -- Funds
@@ -786,7 +795,7 @@ CREATE INDEX idx_funds_organization ON funds(organization);
 CREATE INDEX idx_funds_deadline ON funds(deadline);
 CREATE INDEX idx_funds_internal_deadline ON funds(internal_deadline);
 CREATE INDEX idx_funds_category_id ON funds(category_id);
-CREATE INDEX idx_funds_university_id ON funds(university_id);
+CREATE INDEX idx_funds_organization_id ON funds(organization_id);
 CREATE INDEX idx_funds_created_by ON funds(created_by);
 CREATE INDEX idx_funds_is_new ON funds(is_new);
 CREATE INDEX idx_funds_deleted_at ON funds(deleted_at);
@@ -839,7 +848,7 @@ CREATE INDEX idx_fund_feedback_deleted_at ON fund_feedback(deleted_at);
 
 -- Application documents
 CREATE INDEX idx_application_documents_application_id ON application_documents(application_id);
-CREATE INDEX idx_application_documents_document_type ON application_documents(document_type);
+-- CREATE INDEX idx_application_documents_document_type ON application_documents(document_type);
 CREATE INDEX idx_application_documents_deleted_at ON application_documents(deleted_at);
 
 -- Reviewers
@@ -861,7 +870,7 @@ CREATE INDEX idx_reviewer_invitations_deleted_at ON reviewer_invitations(deleted
 
 -- Reviewer documents
 CREATE INDEX idx_reviewer_documents_reviewer_id ON reviewer_documents(reviewer_id);
-CREATE INDEX idx_reviewer_documents_document_type ON reviewer_documents(document_type);
+-- CREATE INDEX idx_reviewer_documents_document_type ON reviewer_documents(document_type);
 CREATE INDEX idx_reviewer_documents_deleted_at ON reviewer_documents(deleted_at);
 
 -- Chat topics
@@ -930,12 +939,6 @@ CREATE INDEX idx_permission_requests_requested_by ON permission_requests(request
 CREATE INDEX idx_permission_requests_deadline ON permission_requests(request_deadline);
 CREATE INDEX idx_permission_requests_deleted_at ON permission_requests(deleted_at);
 
--- Fund views
-CREATE INDEX idx_fund_views_user_id ON fund_views(user_id);
-CREATE INDEX idx_fund_views_fund_id ON fund_views(fund_id);
-CREATE INDEX idx_fund_views_viewed_at ON fund_views(viewed_at);
-CREATE INDEX idx_fund_views_deleted_at ON fund_views(deleted_at);
-
 -- Audit logs
 CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX idx_audit_logs_action ON audit_logs(action);
@@ -969,11 +972,11 @@ SELECT
     f.keywords, f.recruitment_requirement_url, f.homepage_url, f.format_file_url,
     f.example_file_url, f.is_new, f.created_at, f.updated_at,
     c.name as category_name, c.name_jp as category_name_jp,
-    u.name as university_name, u.name_jp as university_name_jp,
+    u.name as organization_name, u.name_jp as organization_name_jp,
     creator.first_name as created_by_name, creator.last_name as created_by_last_name
 FROM funds f
 LEFT JOIN categories c ON f.category_id = c.id
-LEFT JOIN universities u ON f.university_id = u.id
+LEFT JOIN organizations u ON f.organization_id = u.id
 LEFT JOIN users creator ON f.created_by = creator.id
 WHERE f.deleted_at IS NULL;
 
@@ -1110,26 +1113,26 @@ SELECT
     ct.id as topic_id, ct.topic_type, ct.title as topic_title,
     f.id as fund_id, f.title as fund_title,
     u.id as user_id, u.first_name, u.last_name, u.email, u.username,
-    u.role as user_role, u.university_id,
-    un.name as university_name
+    u.role as user_role, u.organization_id,
+    un.name as organization_name
 FROM chat_topic_participants ctp
 LEFT JOIN chat_topics ct ON ctp.topic_id = ct.id
 LEFT JOIN funds f ON ct.fund_id = f.id
 LEFT JOIN users u ON ctp.user_id = u.id
-LEFT JOIN universities un ON u.university_id = un.id
+LEFT JOIN organizations un ON u.organization_id = un.id
 WHERE ctp.deleted_at IS NULL AND ct.deleted_at IS NULL AND f.deleted_at IS NULL
   AND u.deleted_at IS NULL AND un.deleted_at IS NULL;
 
--- View for the information of universities with professor limits
-CREATE VIEW v_universities_with_professor_limits AS
+-- View for the information of organizations with professor limits
+CREATE VIEW v_organizations_with_professor_limits AS
 SELECT
     u.id, u.name, u.name_jp, u.domain, u.status,
     u.default_professor_limit, u.current_professor_count,
     (u.default_professor_limit + COALESCE(SUM(upp.quantity * pp.professor_count), 0)) as total_professor_limit,
     (u.default_professor_limit + COALESCE(SUM(upp.quantity * pp.professor_count), 0) - u.current_professor_count) as available_professor_slots,
     u.created_at, u.updated_at
-FROM universities u
-LEFT JOIN university_package_purchases upp ON u.id = upp.university_id
+FROM organizations u
+LEFT JOIN organization_package_purchases upp ON u.id = upp.organization_id
     AND upp.payment_status = 'completed'
     AND (upp.expires_at IS NULL OR upp.expires_at > CURRENT_TIMESTAMP)
     AND upp.deleted_at IS NULL
@@ -1144,14 +1147,14 @@ SELECT
     n.is_read, n.is_email_sent, n.email_sent_at, n.sent_at,
     n.created_at, n.updated_at,
     u.id as user_id, u.first_name, u.last_name, u.email, u.username,
-    u.role, u.university_id,
-    un.name as university_name,
+    u.role, u.organization_id,
+    un.name as organization_name,
     -- Count unread notifications for this user
     (SELECT COUNT(*) FROM notifications n2
      WHERE n2.user_id = n.user_id AND n2.is_read = false AND n2.deleted_at IS NULL) as total_unread_count
 FROM notifications n
 LEFT JOIN users u ON n.user_id = u.id
-LEFT JOIN universities un ON u.university_id = un.id
+LEFT JOIN organizations un ON u.organization_id = un.id
 WHERE n.deleted_at IS NULL AND u.deleted_at IS NULL;
 
 -- View for the list of user notification preferences with complete information
@@ -1160,12 +1163,12 @@ SELECT
     unp.id, unp.notification_type, unp.in_app_enabled, unp.email_enabled,
     unp.created_at, unp.updated_at,
     u.id as user_id, u.first_name, u.last_name, u.email, u.username,
-    u.role, u.university_id,
-    un.name as university_name,
+    u.role, u.organization_id,
+    un.name as organization_name,
     nt.title_template, nt.message_template
 FROM user_notification_preferences unp
 LEFT JOIN users u ON unp.user_id = u.id
-LEFT JOIN universities un ON u.university_id = un.id
+LEFT JOIN organizations un ON u.organization_id = un.id
 LEFT JOIN notification_templates nt ON unp.notification_type = nt.type AND nt.deleted_at IS NULL
 WHERE unp.deleted_at IS NULL AND u.deleted_at IS NULL;
 
@@ -1185,33 +1188,33 @@ END;
 $$ language 'plpgsql';
 
 -- Function to automatically update current_professor_count when user is created/deleted
-CREATE OR REPLACE FUNCTION update_university_professor_count()
+CREATE OR REPLACE FUNCTION update_organization_professor_count()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF TG_OP = 'INSERT' AND NEW.role = 'professor' AND NEW.university_id IS NOT NULL THEN
-        UPDATE universities
+    IF TG_OP = 'INSERT' AND NEW.role = 'professor' AND NEW.organization_id IS NOT NULL THEN
+        UPDATE organizations
         SET current_professor_count = current_professor_count + 1
-        WHERE id = NEW.university_id;
+        WHERE id = NEW.organization_id;
         RETURN NEW;
-    ELSIF TG_OP = 'DELETE' AND OLD.role = 'professor' AND OLD.university_id IS NOT NULL THEN
-        UPDATE universities
+    ELSIF TG_OP = 'DELETE' AND OLD.role = 'professor' AND OLD.organization_id IS NOT NULL THEN
+        UPDATE organizations
         SET current_professor_count = current_professor_count - 1
-        WHERE id = OLD.university_id;
+        WHERE id = OLD.organization_id;
         RETURN OLD;
     ELSIF TG_OP = 'UPDATE' AND NEW.role = 'professor' THEN
-        -- If university_id changed
-        IF OLD.university_id IS DISTINCT FROM NEW.university_id THEN
-            -- Decrease count from old university
-            IF OLD.university_id IS NOT NULL THEN
-                UPDATE universities
+        -- If organization_id changed
+        IF OLD.organization_id IS DISTINCT FROM NEW.organization_id THEN
+            -- Decrease count from old organization
+            IF OLD.organization_id IS NOT NULL THEN
+                UPDATE organizations
                 SET current_professor_count = current_professor_count - 1
-                WHERE id = OLD.university_id;
+                WHERE id = OLD.organization_id;
             END IF;
-            -- Increase count for new university
-            IF NEW.university_id IS NOT NULL THEN
-                UPDATE universities
+            -- Increase count for new organization
+            IF NEW.organization_id IS NOT NULL THEN
+                UPDATE organizations
                 SET current_professor_count = current_professor_count + 1
-                WHERE id = NEW.university_id;
+                WHERE id = NEW.organization_id;
             END IF;
         END IF;
         RETURN NEW;
@@ -1264,12 +1267,12 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_fund_is_new_trigger BEFORE INSERT OR UPDATE ON funds FOR EACH ROW EXECUTE FUNCTION update_fund_is_new();
 
 -- Trigger for professor count
-CREATE TRIGGER update_university_professor_count_trigger
+CREATE TRIGGER update_organization_professor_count_trigger
     AFTER INSERT OR UPDATE OR DELETE ON users
-    FOR EACH ROW EXECUTE FUNCTION update_university_professor_count();
+    FOR EACH ROW EXECUTE FUNCTION update_organization_professor_count();
 
 -- Audit triggers (commented out for now - uncomment if needed)
--- CREATE TRIGGER audit_universities AFTER INSERT OR UPDATE OR DELETE ON universities FOR EACH ROW EXECUTE FUNCTION create_audit_log();
+-- CREATE TRIGGER audit_organizations AFTER INSERT OR UPDATE OR DELETE ON organizations FOR EACH ROW EXECUTE FUNCTION create_audit_log();
 -- CREATE TRIGGER audit_categories AFTER INSERT OR UPDATE OR DELETE ON categories FOR EACH ROW EXECUTE FUNCTION create_audit_log();
 -- CREATE TRIGGER audit_users AFTER INSERT OR UPDATE OR DELETE ON users FOR EACH ROW EXECUTE FUNCTION create_audit_log();
 -- CREATE TRIGGER audit_funds AFTER INSERT OR UPDATE OR DELETE ON funds FOR EACH ROW EXECUTE FUNCTION create_audit_log();
@@ -1287,9 +1290,9 @@ COMMENT ON TABLE accounts IS 'Better Auth: Table to store OAuth accounts and cre
 COMMENT ON TABLE verifications IS 'Better Auth: Table to store email verification codes and reset password codes';
 
 -- Fund management tables
-COMMENT ON TABLE universities IS 'Table to store information of universities';
+COMMENT ON TABLE organizations IS 'Table to store information of organizations';
 COMMENT ON TABLE professor_packages IS 'Table to store information of professor packages';
-COMMENT ON TABLE university_package_purchases IS 'Table to store information of university package purchases';
+COMMENT ON TABLE organization_package_purchases IS 'Table to store information of organization package purchases';
 COMMENT ON TABLE categories IS 'Table to store information of categories';
 COMMENT ON TABLE funds IS 'Table to store information of funds';
 COMMENT ON TABLE fund_tags IS 'Table to store information of fund tags';
@@ -1313,18 +1316,19 @@ COMMENT ON TABLE notifications IS 'Table to store information of notifications';
 COMMENT ON TABLE notification_templates IS 'Table to store information of notification templates';
 COMMENT ON TABLE user_notification_preferences IS 'Table to store information of user notification preferences';
 COMMENT ON TABLE fund_favorites IS 'Table to store information of fund favorites';
-COMMENT ON TABLE fund_views IS 'Table to store information of fund views';
 COMMENT ON TABLE audit_logs IS 'Table to store information of audit logs';
+COMMENT ON TABLE passkeys IS 'Table to store information of passkeys';
+COMMENT ON TABLE two_factors IS 'Table to store information of two factors';
 
 -- =====================================================
 -- SAMPLE DATA (OPTIONAL)
 -- =====================================================
 
--- Insert sample universities
-INSERT INTO universities (name, name_jp, domain, status) VALUES
-('Tokyo University', '東京大学', 'u-tokyo.ac.jp', 'active'),
-('Kyoto University', '京都大学', 'kyoto-u.ac.jp', 'active'),
-('Osaka University', '大阪大学', 'osaka-u.ac.jp', 'active');
+-- Insert sample organizations
+INSERT INTO organizations (name, name_jp, domain, status) VALUES
+('Tokyo organization', '東京大学', 'u-tokyo.ac.jp', 'active'),
+('Kyoto organization', '京都大学', 'kyoto-u.ac.jp', 'active'),
+('Osaka organization', '大阪大学', 'osaka-u.ac.jp', 'active');
 
 -- Insert sample professor packages
 INSERT INTO professor_packages (name, name_jp, description, professor_count, price, duration_months) VALUES
@@ -1334,13 +1338,13 @@ INSERT INTO professor_packages (name, name_jp, description, professor_count, pri
 ('Enterprise Package', 'エンタープライズパッケージ', '100 additional professors for 1 year', 100, 300000.00, 12);
 
 -- Insert sample categories
-INSERT INTO categories (name, name_jp, university_id) VALUES
+INSERT INTO categories (name, name_jp, organization_id) VALUES
 ('Internal Funds', '内部資金', 1),
 ('Government Funds', '政府資金', 1),
 ('Private Organization Funds', '民間組織資金', 1);
 
 -- Insert sample users (Better Auth compatible)
-INSERT INTO users (id, first_name, last_name, email, username, role, university_id, status, is_email_verified) VALUES
+INSERT INTO users (id, first_name, last_name, email, username, role, organization_id, status, is_email_verified) VALUES
 ('user-1', 'Admin', 'User', 'admin@u-tokyo.ac.jp', 'admin', 'admin', 1, 'active', true),
 ('user-2', 'Staff', 'User', 'staff@u-tokyo.ac.jp', 'staff', 'staff', 1, 'active', true),
 ('user-3', 'Professor', 'User', 'professor@u-tokyo.ac.jp', 'professor', 'professor', 1, 'active', true);
@@ -1355,7 +1359,7 @@ INSERT INTO fund_tags (name, name_jp, description, color) VALUES
 ('Physics', '物理学', 'Physics and Astronomy', '#ff9ff3');
 
 -- Insert sample funds
-INSERT INTO funds (code, title, organization, deadline, internal_deadline, created_by, category_id, university_id) VALUES
+INSERT INTO funds (code, title, organization, deadline, internal_deadline, created_by, category_id, organization_id) VALUES
 ('FUND-001', 'Research Grant 2024', 'JSPS', '2024-12-31', '2024-11-30', 'user-2', 1, 1),
 ('FUND-002', 'Innovation Award', 'MEXT', '2024-10-31', '2024-09-30', 'user-2', 2, 1);
 
