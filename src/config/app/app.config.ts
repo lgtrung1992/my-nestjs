@@ -1,18 +1,7 @@
 import { Environment, LogService } from '@/constants/app.constant';
 import validateConfig from '@/utils/config/validate-config';
 import { registerAs } from '@nestjs/config';
-import {
-  IsBoolean,
-  IsEnum,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-  Matches,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Matches, Max, Min } from 'class-validator';
 import kebabCase from 'lodash/kebabCase';
 import process from 'node:process';
 import { AppConfig } from './app-config.type';
@@ -37,6 +26,14 @@ class EnvironmentVariablesValidator {
   @IsUrl({ require_tld: false })
   @IsOptional()
   APP_URL: string;
+
+  @IsUrl({ require_tld: false })
+  @IsOptional()
+  APP_FRONTEND_URL: string;
+
+  @IsString()
+  @IsOptional()
+  APP_PASSKEY_RP_ID: string;
 
   @IsInt()
   @Min(0)
@@ -72,9 +69,7 @@ class EnvironmentVariablesValidator {
   APP_LOG_SERVICE: string;
 
   @IsString()
-  @Matches(
-    /^(true|false|\*|([\w]+:\/\/)?([\w.-]+)(:[0-9]+)?)?(,([\w]+:\/\/)?([\w.-]+)(:[0-9]+)?)*$/,
-  )
+  @Matches(/^(true|false|\*|([\w]+:\/\/)?([\w.-]+)(:[0-9]+)?)?(,([\w]+:\/\/)?([\w.-]+)(:[0-9]+)?)*$/)
   @IsOptional()
   APP_CORS_ORIGIN: string;
 
@@ -92,6 +87,8 @@ export function getConfig(): AppConfig {
     isWorker: process.env.IS_WORKER === 'true',
     name: process.env.APP_NAME,
     appPrefix: kebabCase(process.env.APP_NAME),
+    passKeyRpId: process.env.APP_PASSKEY_RP_ID || `localhost`,
+    frontendUrl: process.env.APP_FRONTEND_URL || `http://localhost`,
     url: process.env.APP_URL || `http://localhost:${port}`,
     port,
     workerPort: Number.parseInt(process.env.APP_WORKER_PORT, 10),
@@ -123,20 +120,14 @@ function getCorsOrigin() {
   // localhost
   const localhost = origins
     ?.map((origin) =>
-      origin?.startsWith('http://localhost')
-        ? origin?.replace('http://localhost', 'http://127.0.0.1')
-        : origin,
+      origin?.startsWith('http://localhost') ? origin?.replace('http://localhost', 'http://127.0.0.1') : origin,
     )
     ?.filter((origin, index) => origin !== origins[index]);
   origins.push(...localhost);
 
   // www
   const wwwOrigins = origins
-    ?.map((origin) =>
-      origin?.startsWith('https://')
-        ? origin?.replace('https://', 'https://www.')
-        : origin,
-    )
+    ?.map((origin) => (origin?.startsWith('https://') ? origin?.replace('https://', 'https://www.') : origin))
     ?.filter((origin, index) => origin !== origins[index]);
   origins.push(...wwwOrigins);
   return origins;

@@ -6,6 +6,8 @@ export type AppConfig = {
   isWorker: boolean;
   name: string;
   appPrefix: string;
+  passKeyRpId: string;
+  frontendUrl: string;
   url: string;
   port: number;
   workerPort: number;

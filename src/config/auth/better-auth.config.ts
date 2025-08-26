@@ -62,6 +62,8 @@ export function getConfig({
       },
     }),
     passkey({
+      rpID: appConfig.passKeyRpId,
+      origin: appConfig.frontendUrl,
       rpName: appConfig.name,
       schema: {
         passkey: {
