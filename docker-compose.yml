@@ -56,7 +56,7 @@ services:
       - my-nestjs-network
 
   db:
-    image: postgres:16
+    image: postgres:16-alpine
     restart: unless-stopped
     env_file:
       - .env
@@ -64,7 +64,7 @@ services:
       POSTGRES_USER: '${DATABASE_USERNAME}'
       POSTGRES_PASSWORD: '${DATABASE_PASSWORD}'
       POSTGRES_DB: '${DATABASE_NAME}'
-      TZ: 'UTC'
+      PGDATA: /var/lib/postgresql/data/
     ports:
       - '${DOCKER_DATABASE_PORT}:5432'
     volumes:
