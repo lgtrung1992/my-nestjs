@@ -16,6 +16,9 @@ import { setupGracefulShutdown } from 'nestjs-graceful-shutdown';
 
 import path from 'path';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { GlobalTimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { getConfig as getAppConfig } from './config/app/app.config';
 import { BULL_BOARD_PATH } from './config/bull/bull.config';
 import { type GlobalConfig } from './config/config.type';
@@ -129,6 +132,9 @@ async function bootstrap() {
     environment: env,
   });
   app.useGlobalInterceptors(new SentryInterceptor());
+  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalInterceptors(new GlobalTimeoutInterceptor());
+  app.useGlobalInterceptors(new ResponseInterceptor());
 
   if (env !== 'local') {
     setupGracefulShutdown({ app });
