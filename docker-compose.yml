@@ -19,24 +19,24 @@ services:
     networks:
       - my-nestjs-network
 
-  # worker:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - /app/node_modules
-  #     - .:/app
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     - IS_WORKER=true
-  #   depends_on:
-  #     - db
-  #     - redis
-  #   command: >
-  #     sh -c "pnpm start:dev"
-  #   networks:
-  #     - my-nestjs-network
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - IS_WORKER=true
+    depends_on:
+      - db
+      - redis
+    command: >
+      sh -c "pnpm start:dev"
+    networks:
+      - my-nestjs-network
 
   redis:
     image: redis:7.0.1-alpine
