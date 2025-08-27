@@ -16,20 +16,13 @@ const PinoLevelToGoogleLoggingSeverityLookup = Object.freeze({
   fatal: 'CRITICAL',
 });
 
-const genReqId: GenReqId = (
-  req: IncomingMessage,
-  res: ServerResponse<IncomingMessage>,
-) => {
+const genReqId: GenReqId = (req: IncomingMessage, res: ServerResponse<IncomingMessage>) => {
   const id: ReqId = req.headers['x-request-id'] || uuidv4();
   res.setHeader('X-Request-Id', id.toString());
   return id;
 };
 
-const customSuccessMessage = (
-  req: IncomingMessage,
-  res: ServerResponse<IncomingMessage>,
-  responseTime: number,
-) => {
+const customSuccessMessage = (req: IncomingMessage, res: ServerResponse<IncomingMessage>, responseTime: number) => {
   return `[${req.id || '*'}] "${req.method} ${req.url}" ${res.statusCode} - "${req.headers['host']}" "${req.headers['user-agent']}" - ${responseTime} ms`;
 };
 
@@ -66,9 +59,7 @@ function googleLoggingConfig(): Options {
     formatters: {
       level(label, number) {
         return {
-          severity:
-            PinoLevelToGoogleLoggingSeverityLookup[label] ||
-            PinoLevelToGoogleLoggingSeverityLookup['info'],
+          severity: PinoLevelToGoogleLoggingSeverityLookup[label] || PinoLevelToGoogleLoggingSeverityLookup['info'],
           level: number,
         };
       },
@@ -83,16 +74,13 @@ export function consoleLoggingConfig(): Options {
       target: 'pino-pretty',
       options: {
         singleLine: true,
-        ignore:
-          'req.id,req.headers,req.remoteAddress,req.remotePort,res.headers',
+        ignore: 'req.id,req.headers,req.remoteAddress,req.remotePort,res.headers',
       },
     },
   };
 }
 
-async function useLoggerFactory(
-  configService: ConfigService<GlobalConfig>,
-): Promise<Params> {
+async function useLoggerFactory(configService: ConfigService<GlobalConfig>): Promise<Params> {
   const logLevel = configService.get('app.logLevel', { infer: true });
   const logService = configService.get('app.logService', { infer: true });
   const isDebug = configService.get('app.debug', { infer: true });

@@ -3,9 +3,7 @@ import { type BullRootModuleOptions } from '@nestjs/bullmq';
 import { ConfigService } from '@nestjs/config';
 import bullConfig from './bull.config';
 
-async function useBullFactory(
-  configService: ConfigService<GlobalConfig>,
-): Promise<BullRootModuleOptions> {
+async function useBullFactory(configService: ConfigService<GlobalConfig>): Promise<BullRootModuleOptions> {
   const config = await bullConfig();
   return {
     prefix: config.prefix,

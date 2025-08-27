@@ -1,15 +1,7 @@
 import { registerAs } from '@nestjs/config';
 
 import validateConfig from '@/utils/config/validate-config';
-import {
-  IsBoolean,
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
 import { RedisConfig } from './redis-config.type';
 
 class EnvironmentVariablesValidator {
@@ -56,8 +48,7 @@ export function getConfig(): RedisConfig {
     tls:
       process.env.REDIS_TLS === 'true'
         ? {
-            rejectUnauthorized:
-              process.env.REDIS_REJECT_UNAUTHORIZED === 'true',
+            rejectUnauthorized: process.env.REDIS_REJECT_UNAUTHORIZED === 'true',
             ca: process.env.REDIS_CA ?? undefined,
             key: process.env.REDIS_KEY ?? undefined,
             cert: process.env.REDIS_CERT ?? undefined,

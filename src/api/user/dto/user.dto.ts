@@ -4,12 +4,7 @@ import { CursorPaginatedDto } from '@/common/dto/cursor-pagination/paginated.dto
 import { OffsetPaginationDto } from '@/common/dto/offset-pagination/offset-pagination.dto';
 import { PageOptionsDto as OffsetPageOptions } from '@/common/dto/offset-pagination/page-options.dto';
 import { OffsetPaginatedDto } from '@/common/dto/offset-pagination/paginated.dto';
-import {
-  ClassField,
-  EnumField,
-  StringField,
-  StringFieldOptional,
-} from '@/decorators/field.decorators';
+import { ClassField, EnumField, StringField, StringFieldOptional } from '@/decorators/field.decorators';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { Role } from '../user.enum';

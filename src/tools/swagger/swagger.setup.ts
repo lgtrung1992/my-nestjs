@@ -18,10 +18,7 @@ function setupSwagger(app: INestApplication): OpenAPIObject {
     .setVersion('1.0')
     .addBearerAuth()
     .addApiKey({ type: 'apiKey', name: 'Api-Key', in: 'header' }, 'Api-Key')
-    .addServer(
-      configService.getOrThrow('app.url', { infer: true }),
-      'Development',
-    )
+    .addServer(configService.getOrThrow('app.url', { infer: true }), 'Development')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

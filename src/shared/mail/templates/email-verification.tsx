@@ -1,14 +1,5 @@
 // EmailVerification.tsx
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Tailwind,
-  Text,
-} from '@react-email/components';
+import { Body, Button, Container, Head, Html, Preview, Tailwind, Text } from '@react-email/components';
 import * as React from 'react';
 
 interface EmailVerificationProps {
@@ -16,10 +7,7 @@ interface EmailVerificationProps {
   url: string;
 }
 
-export const EmailVerification = ({
-  email = '{{email}}',
-  url = '{{url}}',
-}: EmailVerificationProps) => {
+export const EmailVerification = ({ email = '{{email}}', url = '{{url}}' }: EmailVerificationProps) => {
   return (
     <Html>
       <Head />
@@ -29,12 +17,9 @@ export const EmailVerification = ({
           <Container className="bg-white max-w-xl mx-auto p-6 rounded-lg">
             <Text className="text-xl font-semibold mb-4">Hi {email},</Text>
             <Text className="text-base mb-2">
-              Thank you for registering. Please verify your email address by
-              clicking the button below:{' '}
+              Thank you for registering. Please verify your email address by clicking the button below:{' '}
             </Text>
-            <Text className="text-base mb-4">
-              Click the button below to proceed to reset it:
-            </Text>
+            <Text className="text-base mb-4">Click the button below to proceed to reset it:</Text>
             <Button
               href={url}
               className="bg-blue-600 text-white font-bold py-3 px-5 rounded-md no-underline inline-block mb-4"

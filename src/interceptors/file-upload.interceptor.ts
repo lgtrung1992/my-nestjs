@@ -1,14 +1,6 @@
 import { GlobalConfig } from '@/config/config.type';
 import { FileInterceptor, FilesInterceptor } from '@nest-lab/fastify-multer';
-import {
-  CallHandler,
-  ExecutionContext,
-  Inject,
-  Injectable,
-  mixin,
-  NestInterceptor,
-  Type,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Inject, Injectable, mixin, NestInterceptor, Type } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { diskStorage } from 'fastify-multer';
 import fs from 'fs';

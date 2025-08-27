@@ -1,16 +1,6 @@
 import validateConfig from '@/utils/config/validate-config';
 import { registerAs } from '@nestjs/config';
-import {
-  IsBoolean,
-  IsEnum,
-  IsInt,
-  IsOptional,
-  IsPositive,
-  IsString,
-  Max,
-  Min,
-  ValidateIf,
-} from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsPositive, IsString, Max, Min, ValidateIf } from 'class-validator';
 import path from 'path';
 import { DatabaseConfig, DatabaseSSLMode } from './database-config.type';
 
@@ -75,33 +65,24 @@ export function getConfig(): DatabaseConfig {
   return {
     type: 'postgres',
     host: process.env.DATABASE_HOST,
-    port: process.env.DATABASE_PORT
-      ? parseInt(process.env.DATABASE_PORT, 10)
-      : 5432,
+    port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT, 10) : 5432,
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_NAME,
     username: process.env.DATABASE_USERNAME,
     logging: process.env.DATABASE_LOGGING === 'true',
     dropSchema: false,
-    poolSize: process.env.DATABASE_MAX_CONNECTIONS
-      ? parseInt(process.env.DATABASE_MAX_CONNECTIONS, 10)
-      : 100,
+    poolSize: process.env.DATABASE_MAX_CONNECTIONS ? parseInt(process.env.DATABASE_MAX_CONNECTIONS, 10) : 100,
     ssl:
       process.env.DATABASE_SSL_MODE === DatabaseSSLMode.require
         ? {
-            rejectUnauthorized:
-              process.env.DATABASE_REJECT_UNAUTHORIZED === 'true',
+            rejectUnauthorized: process.env.DATABASE_REJECT_UNAUTHORIZED === 'true',
             ca: process.env.DATABASE_CA ?? undefined,
             key: process.env.DATABASE_KEY ?? undefined,
             cert: process.env.DATABASE_CERT ?? undefined,
           }
         : undefined,
-    entities: [
-      path.join(__dirname, '..', '..', '/**/entities/*.entity{.ts,.js}'),
-    ],
-    migrations: [
-      path.join(__dirname, '..', '..', '/database/migrations/**/*{.ts,.js}'),
-    ],
+    entities: [path.join(__dirname, '..', '..', '/**/entities/*.entity{.ts,.js}')],
+    migrations: [path.join(__dirname, '..', '..', '/database/migrations/**/*{.ts,.js}')],
     migrationsTableName: 'migrations',
     seeds: [path.join(__dirname, '..', '..', '/database/seeds/**/*{.ts,.js}')],
     seedTracking: true,

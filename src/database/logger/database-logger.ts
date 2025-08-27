@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Logger } from '@nestjs/common';
-import {
-  QueryRunner,
-  Logger as TypeOrmLogger,
-  type LogLevel,
-  type LogMessageType,
-  type LoggerOptions,
-} from 'typeorm';
+import { QueryRunner, Logger as TypeOrmLogger, type LogLevel, type LogMessageType, type LoggerOptions } from 'typeorm';
 
 class DatabaseLogger implements TypeOrmLogger {
   static getInstance(connectionName: string, options: LoggerOptions) {
@@ -27,11 +21,7 @@ class DatabaseLogger implements TypeOrmLogger {
       return;
     }
 
-    const sql =
-      query +
-      (parameters && parameters.length
-        ? ' -- PARAMETERS: ' + this.stringifyParams(parameters)
-        : '');
+    const sql = query + (parameters && parameters.length ? ' -- PARAMETERS: ' + this.stringifyParams(parameters) : '');
     this.logger.log(`query: ${sql}`);
   }
 
@@ -43,11 +33,7 @@ class DatabaseLogger implements TypeOrmLogger {
       return;
     }
 
-    const sql =
-      query +
-      (parameters && parameters.length
-        ? ' -- PARAMETERS: ' + this.stringifyParams(parameters)
-        : '');
+    const sql = query + (parameters && parameters.length ? ' -- PARAMETERS: ' + this.stringifyParams(parameters) : '');
     this.logger.error(`query failed: ${sql}`);
     this.logger.error(`error:`, error);
   }
@@ -60,11 +46,7 @@ class DatabaseLogger implements TypeOrmLogger {
       return;
     }
 
-    const sql =
-      query +
-      (parameters && parameters.length
-        ? ' -- PARAMETERS: ' + this.stringifyParams(parameters)
-        : '');
+    const sql = query + (parameters && parameters.length ? ' -- PARAMETERS: ' + this.stringifyParams(parameters) : '');
     this.logger.warn(`query is slow: ${sql}`);
     this.logger.warn(`execution time: ${time}`);
   }
@@ -146,31 +128,19 @@ class DatabaseLogger implements TypeOrmLogger {
 
       case 'schema':
       case 'schema-build':
-        return (
-          this.options === 'all' ||
-          (Array.isArray(this.options) && this.options.indexOf('schema') !== -1)
-        );
+        return this.options === 'all' || (Array.isArray(this.options) && this.options.indexOf('schema') !== -1);
 
       case 'migration':
         return true;
 
       case 'log':
-        return (
-          this.options === 'all' ||
-          (Array.isArray(this.options) && this.options.indexOf('log') !== -1)
-        );
+        return this.options === 'all' || (Array.isArray(this.options) && this.options.indexOf('log') !== -1);
 
       case 'info':
-        return (
-          this.options === 'all' ||
-          (Array.isArray(this.options) && this.options.indexOf('info') !== -1)
-        );
+        return this.options === 'all' || (Array.isArray(this.options) && this.options.indexOf('info') !== -1);
 
       case 'warn':
-        return (
-          this.options === 'all' ||
-          (Array.isArray(this.options) && this.options.indexOf('warn') !== -1)
-        );
+        return this.options === 'all' || (Array.isArray(this.options) && this.options.indexOf('warn') !== -1);
 
       default:
         return false;

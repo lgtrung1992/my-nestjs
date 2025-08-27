@@ -1,10 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  HttpException,
-  Injectable,
-  NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, HttpException, Injectable, NestInterceptor } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import 'dotenv/config';
 import { Observable, throwError } from 'rxjs';
@@ -17,9 +11,7 @@ const enableSentry = (err: Error, context: ExecutionContext) => {
   }
 
   Sentry.withScope((scope) => {
-    scope.addEventProcessor(async (event) =>
-      Sentry.addRequestDataToEvent(event, context.getArgs()[0]),
-    );
+    scope.addEventProcessor(async (event) => Sentry.addRequestDataToEvent(event, context.getArgs()[0]));
     Sentry.captureException(err);
   });
 
@@ -28,15 +20,10 @@ const enableSentry = (err: Error, context: ExecutionContext) => {
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+  intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
     const sentryConfig = getConfig();
     if (sentryConfig.logging) {
-      return next
-        .handle()
-        .pipe(catchError((err) => enableSentry(err, context)));
+      return next.handle().pipe(catchError((err) => enableSentry(err, context)));
     }
     return next.handle().pipe(catchError((err) => throwError(() => err)));
   }

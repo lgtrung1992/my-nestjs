@@ -13,12 +13,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
-import {
-  AcceptLanguageResolver,
-  HeaderResolver,
-  I18nModule,
-  QueryResolver,
-} from 'nestjs-i18n';
+import { AcceptLanguageResolver, HeaderResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { LoggerModule } from 'nestjs-pino';
 
 import { FastifyAdapter } from '@bull-board/fastify';
@@ -26,10 +21,7 @@ import { GracefulShutdownModule } from 'nestjs-graceful-shutdown';
 import { ApiModule } from './api/api.module';
 import { AuthModule } from './auth/auth.module';
 import { default as awsConfig } from './config/aws/aws.config';
-import {
-  BULL_BOARD_PATH,
-  default as bullConfig,
-} from './config/bull/bull.config';
+import { BULL_BOARD_PATH, default as bullConfig } from './config/bull/bull.config';
 import { default as useBullFactory } from './config/bull/bull.factory';
 import grafanaConfig from './config/grafana/grafana.config';
 import { default as sentryConfig } from './config/sentry/sentry.config';

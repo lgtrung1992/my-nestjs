@@ -1,13 +1,6 @@
-import {
-  type ValidationArguments,
-  type ValidationOptions,
-  registerDecorator,
-} from 'class-validator';
+import { type ValidationArguments, type ValidationOptions, registerDecorator } from 'class-validator';
 
-export function IsBothOrNonePresent(
-  property: string,
-  validationOptions?: ValidationOptions,
-): PropertyDecorator {
+export function IsBothOrNonePresent(property: string, validationOptions?: ValidationOptions): PropertyDecorator {
   return (object: any, propertyName: string) => {
     registerDecorator({
       name: 'IsBothOrNonePresent',

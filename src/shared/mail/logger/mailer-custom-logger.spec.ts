@@ -26,14 +26,7 @@ describe('MailerCustomLogger', () => {
 
   it('should initialize logLevels property with default values', () => {
     const mailerLogger = new MailerCustomLogger(logger);
-    expect(mailerLogger['logLevels']).toEqual([
-      'trace',
-      'debug',
-      'info',
-      'warn',
-      'error',
-      'fatal',
-    ]);
+    expect(mailerLogger['logLevels']).toEqual(['trace', 'debug', 'info', 'warn', 'error', 'fatal']);
   });
 
   it('should initialize logLevels property with provided values', () => {

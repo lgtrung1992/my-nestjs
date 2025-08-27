@@ -4,9 +4,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { ConfigService } from '@nestjs/config';
 import path from 'path';
 
-async function useMailFactory(
-  config: ConfigService<GlobalConfig>,
-): Promise<MailerOptions> {
+async function useMailFactory(config: ConfigService<GlobalConfig>): Promise<MailerOptions> {
   return {
     transport: {
       host: config.get('mail.host', { infer: true }),

@@ -4,12 +4,7 @@ import { CacheService } from '@/shared/cache/cache.service';
 import { CacheParam } from '@/shared/cache/cache.type';
 import { EmailQueue } from '@/worker/queues/email/email.type';
 import { InjectQueue } from '@nestjs/bullmq';
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -116,9 +111,7 @@ export class AuthService {
     const password = this.configService.getOrThrow('auth.basicAuth.password', {
       infer: true,
     });
-    const base64Credential = Buffer.from(`${username}:${password}`).toString(
-      'base64',
-    );
+    const base64Credential = Buffer.from(`${username}:${password}`).toString('base64');
     return {
       Authorization: `Basic ${base64Credential}`,
     };

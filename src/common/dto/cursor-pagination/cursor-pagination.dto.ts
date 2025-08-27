@@ -19,12 +19,7 @@ export class CursorPaginationDto {
   @Expose()
   readonly totalRecords: number;
 
-  constructor(
-    totalRecords: number,
-    afterCursor: string,
-    beforeCursor: string,
-    pageOptions: PageOptionsDto,
-  ) {
+  constructor(totalRecords: number, afterCursor: string, beforeCursor: string, pageOptions: PageOptionsDto) {
     this.limit = pageOptions?.limit;
     this.afterCursor = afterCursor;
     this.beforeCursor = beforeCursor;

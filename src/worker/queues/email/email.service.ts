@@ -3,11 +3,7 @@ import { MailService } from '@/shared/mail/mail.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  EmailVerificationJob,
-  ResetPasswordJob,
-  SignInMagicLinkJob,
-} from './email.type';
+import { EmailVerificationJob, ResetPasswordJob, SignInMagicLinkJob } from './email.type';
 
 @Injectable()
 export class EmailQueueService {

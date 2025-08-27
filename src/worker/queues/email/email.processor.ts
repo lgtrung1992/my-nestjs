@@ -57,9 +57,7 @@ export class EmailProcessor extends WorkerHost {
 
   @OnWorkerEvent('failed')
   async onFailed(job: Job) {
-    this.logger.error(
-      `Job ${job.id} has failed with reason: ${job.failedReason}`,
-    );
+    this.logger.error(`Job ${job.id} has failed with reason: ${job.failedReason}`);
     this.logger.error(job.stacktrace);
   }
 

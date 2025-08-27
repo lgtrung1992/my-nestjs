@@ -52,9 +52,7 @@ export class HealthController {
           options: this.configService.getOrThrow('redis'),
         }),
     ];
-    if (
-      this.configService.get('app.nodeEnv', { infer: true }) !== 'production'
-    ) {
+    if (this.configService.get('app.nodeEnv', { infer: true }) !== 'production') {
       list.push(() => {
         const url = `${this.configService.getOrThrow('app.url', { infer: true })}${SWAGGER_PATH}`;
         return this.http.pingCheck('api-docs', url, {

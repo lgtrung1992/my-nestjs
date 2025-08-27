@@ -34,9 +34,7 @@ describe('validateConfig', () => {
       DATABASE_HOST: 'localhost',
     };
 
-    expect(() => validateConfig(config, EnvVariables)).toThrow(
-      /Error in DATABASE_PORT:/,
-    );
+    expect(() => validateConfig(config, EnvVariables)).toThrow(/Error in DATABASE_PORT:/);
   });
 
   it('should throw an error for incorrect types', () => {
@@ -45,8 +43,6 @@ describe('validateConfig', () => {
       DATABASE_PORT: 'not-a-number',
     };
 
-    expect(() => validateConfig(config, EnvVariables)).toThrow(
-      /Error in DATABASE_PORT:/,
-    );
+    expect(() => validateConfig(config, EnvVariables)).toThrow(/Error in DATABASE_PORT:/);
   });
 });

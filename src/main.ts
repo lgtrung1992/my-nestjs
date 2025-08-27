@@ -9,10 +9,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import * as Sentry from '@sentry/node';
 import helmet from 'helmet';
 import { setupGracefulShutdown } from 'nestjs-graceful-shutdown';
@@ -83,12 +80,7 @@ async function bootstrap() {
       infer: true,
     }),
     methods: ['GET', 'PATCH', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'Accept',
-    ],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     credentials: true,
   });
 
@@ -169,9 +161,7 @@ async function bootstrap() {
 
   const httpUrl = await app.getUrl();
   // eslint-disable-next-line no-console
-  console.info(
-    `\x1b[3${isWorker ? '3' : '4'}m${isWorker ? 'Worker ' : ''}Server running at ${httpUrl}`,
-  );
+  console.info(`\x1b[3${isWorker ? '3' : '4'}m${isWorker ? 'Worker ' : ''}Server running at ${httpUrl}`);
 
   return app;
 }

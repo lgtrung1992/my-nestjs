@@ -11,9 +11,7 @@ async function useThrottlerFactory(config: ConfigService<GlobalConfig>) {
         limit: config.getOrThrow('throttler.limit', { infer: true }),
       },
     ],
-    storage: new ThrottlerStorageRedisService(
-      new Redis(config.getOrThrow('redis')),
-    ),
+    storage: new ThrottlerStorageRedisService(new Redis(config.getOrThrow('redis'))),
   };
 }
 

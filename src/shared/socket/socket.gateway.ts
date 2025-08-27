@@ -31,9 +31,7 @@ type SocketWithUserSession = Socket & { session: CurrentUserSession };
     credentials: true,
   },
 })
-export class SocketGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   readonly logger = new Logger(this.constructor.name);
 
   @WebSocketServer()
@@ -83,11 +81,7 @@ export class SocketGateway
     });
     const clients = new Set<string>(Array.from(userClients ?? []));
     clients.add(socket?.id);
-    await this.cacheService.set(
-      { key: 'UserSocketClients', args: [userId] },
-      Array.from(clients),
-      { ttl: ms('1h') },
-    );
+    await this.cacheService.set({ key: 'UserSocketClients', args: [userId] }, Array.from(clients), { ttl: ms('1h') });
   }
 
   async handleDisconnect(socket: SocketWithUserSession) {
@@ -105,11 +99,7 @@ export class SocketGateway
     const clients = new Set<string>(Array.from(userClients ?? []));
     if (clients.has(socket?.id)) {
       clients.delete(socket?.id);
-      await this.cacheService.set(
-        { key: 'UserSocketClients', args: [userId] },
-        Array.from(clients),
-        { ttl: ms('1h') },
-      );
+      await this.cacheService.set({ key: 'UserSocketClients', args: [userId] }, Array.from(clients), { ttl: ms('1h') });
     }
   }
 

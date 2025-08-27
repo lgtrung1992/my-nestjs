@@ -5,17 +5,12 @@ import { ConfigService } from '@nestjs/config';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import path from 'path';
 
-function useGraphqlFactory(
-  configService: ConfigService<GlobalConfig>,
-): ApolloDriverConfig {
+function useGraphqlFactory(configService: ConfigService<GlobalConfig>): ApolloDriverConfig {
   const env = configService.get('app.nodeEnv', { infer: true });
   const isDevelopment = env === 'development' || env === 'local';
   return {
     playground: isDevelopment,
-    autoSchemaFile: path.join(
-      __dirname,
-      '../../src/generated/schema.generated.gql',
-    ),
+    autoSchemaFile: path.join(__dirname, '../../src/generated/schema.generated.gql'),
     formatError: (...params: Parameters<ApolloDriverConfig['formatError']>) => {
       const [err] = params;
       if (!isDevelopment) {

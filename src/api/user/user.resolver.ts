@@ -1,14 +1,7 @@
 import { AuthGuard } from '@/auth/auth.guard';
 import { CurrentUserSession } from '@/decorators/auth/current-user-session.decorator';
 import { UseGuards } from '@nestjs/common';
-import {
-  Args,
-  Mutation,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { DeleteUserInput } from './schema/delete-user.schema';
 import { GetUserArgs } from './schema/get-user.schema';
 import { UserSchema } from './schema/user.schema';

@@ -1,9 +1,5 @@
 import { UserSession as UserSessionType } from '@/auth/auth.type';
-import {
-  ContextType,
-  createParamDecorator,
-  ExecutionContext,
-} from '@nestjs/common';
+import { ContextType, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { type FastifyRequest } from 'fastify';
 
@@ -12,10 +8,7 @@ export type CurrentUserSession = UserSessionType & {
 };
 
 export const CurrentUserSession = createParamDecorator(
-  (
-    data: keyof UserSessionType | 'headers',
-    ctx: ExecutionContext,
-  ): CurrentUserSession => {
+  (data: keyof UserSessionType | 'headers', ctx: ExecutionContext): CurrentUserSession => {
     const contextType: ContextType & 'graphql' = ctx.getType();
 
     let request: FastifyRequest & UserSessionType;

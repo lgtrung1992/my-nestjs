@@ -40,10 +40,7 @@ class SerializeInterceptor implements NestInterceptor {
    * @param {CallHandler<any>} handler - The call handler responsible for handling the current request.
    * @return {Observable<any> | Promise<Observable<any>>} - The serialized response data.
    */
-  intercept(
-    context: ExecutionContext,
-    handler: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+  intercept(context: ExecutionContext, handler: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
     return handler.handle().pipe(
       map((data: any) => {
         return plainToInstance(this.dto, data, {

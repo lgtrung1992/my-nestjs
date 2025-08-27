@@ -1,17 +1,10 @@
 import { GlobalConfig } from '@/config/config.type';
-import {
-  PutObjectCommand,
-  PutObjectCommandInput,
-  S3Client,
-} from '@aws-sdk/client-s3';
+import { PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 import { File } from '@nest-lab/fastify-multer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
-import {
-  AwsS3UploadOptions,
-  AwsS3UploadResponse,
-} from '../../config/aws/aws-config.types';
+import { AwsS3UploadOptions, AwsS3UploadResponse } from '../../config/aws/aws-config.types';
 
 @Injectable()
 export class AwsS3Service {
@@ -34,10 +27,7 @@ export class AwsS3Service {
    * @param {File} file - data to be saved
    * @param {AwsS3UploadOptions} config - Configuration for upload
    */
-  async uploadFile(
-    file: File,
-    config: AwsS3UploadOptions,
-  ): Promise<AwsS3UploadResponse> {
+  async uploadFile(file: File, config: AwsS3UploadOptions): Promise<AwsS3UploadResponse> {
     const response = await this.uploadBuffer(file.buffer, config);
     return {
       ...response,
@@ -51,10 +41,7 @@ export class AwsS3Service {
    * @param {Buffer} buffer - Buffer data
    * @param {AwsS3UploadOptions} config - Configuration for upload
    */
-  async uploadBuffer(
-    buffer: Buffer,
-    config: AwsS3UploadOptions,
-  ): Promise<AwsS3UploadResponse> {
+  async uploadBuffer(buffer: Buffer, config: AwsS3UploadOptions): Promise<AwsS3UploadResponse> {
     const { path, filename } = this._constructFileObject(config);
     const putObjectInput: PutObjectCommandInput = {
       Bucket: this.configService.getOrThrow('aws.bucket', { infer: true }),

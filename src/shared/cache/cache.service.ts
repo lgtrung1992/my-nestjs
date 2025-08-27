@@ -25,13 +25,8 @@ export class CacheService {
    * -1: If key exists but has no expiry
    * -2: If key does not exist at all
    */
-  async getTtl(
-    keyParams: CacheParam,
-    options?: { disableResponseFilter?: false },
-  ): Promise<number | null> {
-    const ttl = await this.cacheManager.store.ttl(
-      this._constructCacheKey(keyParams),
-    );
+  async getTtl(keyParams: CacheParam, options?: { disableResponseFilter?: false }): Promise<number | null> {
+    const ttl = await this.cacheManager.store.ttl(this._constructCacheKey(keyParams));
 
     if (!options?.disableResponseFilter && [-1, -2].includes(ttl)) {
       return null;
@@ -69,11 +64,7 @@ export class CacheService {
     },
   ): Promise<{ key: string }> {
     const key = this._constructCacheKey(keyParams);
-    await this.cacheManager.store.set<T>(
-      this._constructCacheKey(keyParams),
-      value,
-      options?.ttl,
-    );
+    await this.cacheManager.store.set<T>(this._constructCacheKey(keyParams), value, options?.ttl);
     return { key };
   }
 
@@ -85,9 +76,6 @@ export class CacheService {
 
   private _constructCacheKey(keyParams: CacheParam): string {
     const prefix = this.configService.get('app.appPrefix', { infer: true });
-    return util.format(
-      `${prefix}:${CacheKey[keyParams.key]}`,
-      ...(keyParams.args ?? []),
-    );
+    return util.format(`${prefix}:${CacheKey[keyParams.key]}`, ...(keyParams.args ?? []));
   }
 }

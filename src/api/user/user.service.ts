@@ -13,11 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { I18nService } from 'nestjs-i18n';
 import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
-import {
-  QueryUsersCursorDto,
-  QueryUsersOffsetDto,
-  UserDto,
-} from './dto/user.dto';
+import { QueryUsersCursorDto, QueryUsersOffsetDto, UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -28,12 +24,8 @@ export class UserService {
     private readonly betterAuthService: BetterAuthService,
   ) {}
 
-  async findAllUsers(
-    dto: QueryUsersOffsetDto,
-  ): Promise<OffsetPaginatedDto<UserDto>> {
-    const query = this.userRepository
-      .createQueryBuilder('user')
-      .orderBy('user.createdAt', 'DESC');
+  async findAllUsers(dto: QueryUsersOffsetDto): Promise<OffsetPaginatedDto<UserDto>> {
+    const query = this.userRepository.createQueryBuilder('user').orderBy('user.createdAt', 'DESC');
     const [users, metaDto] = await paginate<UserEntity>(query, dto, {
       skipCount: false,
       takeAll: false,
@@ -41,9 +33,7 @@ export class UserService {
     return new OffsetPaginatedDto(users, metaDto);
   }
 
-  async findAllUsersCursor(
-    reqDto: QueryUsersCursorDto,
-  ): Promise<CursorPaginatedDto<UserDto>> {
+  async findAllUsersCursor(reqDto: QueryUsersCursorDto): Promise<CursorPaginatedDto<UserDto>> {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
     const paginator = buildPaginator({
       entity: UserEntity,
@@ -59,20 +49,12 @@ export class UserService {
 
     const { data, cursor } = await paginator.paginate(queryBuilder);
 
-    const metaDto = new CursorPaginationDto(
-      data.length,
-      cursor.afterCursor,
-      cursor.beforeCursor,
-      reqDto,
-    );
+    const metaDto = new CursorPaginationDto(data.length, cursor.afterCursor, cursor.beforeCursor, reqDto);
 
     return new CursorPaginatedDto(data, metaDto);
   }
 
-  async findOneUser(
-    id: Uuid | string,
-    options?: FindOneOptions<UserEntity>,
-  ): Promise<UserDto> {
+  async findOneUser(id: Uuid | string, options?: FindOneOptions<UserEntity>): Promise<UserDto> {
     const user = await this.userRepository.findOne({
       where: { id, ...(options?.where ?? {}) },
       ...(options ?? {}),

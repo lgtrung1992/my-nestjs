@@ -13,17 +13,11 @@ import { HealthController } from './health.controller';
 describe('HealthController', () => {
   let controller: HealthController;
   let service: HealthCheckService;
-  let configServiceValue: Partial<
-    Record<keyof ConfigService<GlobalConfig>, jest.Mock>
-  >;
-  let healthCheckServiceValue: Partial<
-    Record<keyof HealthCheckService, jest.Mock>
-  >;
+  let configServiceValue: Partial<Record<keyof ConfigService<GlobalConfig>, jest.Mock>>;
+  let healthCheckServiceValue: Partial<Record<keyof HealthCheckService, jest.Mock>>;
   let httpUseValue: Partial<Record<keyof HttpHealthIndicator, jest.Mock>>;
   let dbUseValue: Partial<Record<keyof TypeOrmHealthIndicator, jest.Mock>>;
-  let microServiceValue: Partial<
-    Record<keyof MicroserviceHealthIndicator, jest.Mock>
-  >;
+  let microServiceValue: Partial<Record<keyof MicroserviceHealthIndicator, jest.Mock>>;
   let authServiceValue: Partial<Record<keyof AuthService, jest.Mock>>;
 
   beforeAll(async () => {

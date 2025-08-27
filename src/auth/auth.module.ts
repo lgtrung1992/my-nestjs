@@ -1,39 +1,21 @@
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
-import type {
-  MiddlewareConsumer,
-  NestModule,
-  OnModuleInit,
-} from '@nestjs/common';
+import type { MiddlewareConsumer, NestModule, OnModuleInit } from '@nestjs/common';
 import { Global, Inject, Logger, Module } from '@nestjs/common';
-import {
-  DiscoveryModule,
-  DiscoveryService,
-  HttpAdapterHost,
-  MetadataScanner,
-} from '@nestjs/core';
+import { DiscoveryModule, DiscoveryService, HttpAdapterHost, MetadataScanner } from '@nestjs/core';
 import { betterAuth, type Auth } from 'better-auth';
 
 import { getConfig as getBetterAuthConfig } from '@/config/auth/better-auth.config';
 import { GlobalConfig } from '@/config/config.type';
-import {
-  AFTER_HOOK_KEY,
-  AUTH_INSTANCE_KEY,
-  BEFORE_HOOK_KEY,
-  HOOK_KEY,
-} from '@/constants/auth.constant';
+import { AFTER_HOOK_KEY, AUTH_INSTANCE_KEY, BEFORE_HOOK_KEY, HOOK_KEY } from '@/constants/auth.constant';
 import { Queue } from '@/constants/job.constant';
 import { CacheModule } from '@/shared/cache/cache.module';
 import { CacheService } from '@/shared/cache/cache.service';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createAuthMiddleware } from 'better-auth/plugins';
-import type {
-  FastifyInstance,
-  FastifyReply as Reply,
-  FastifyRequest as Request,
-} from 'fastify';
+import type { FastifyInstance, FastifyReply as Reply, FastifyRequest as Request } from 'fastify';
 import { AuthService } from './auth.service';
 import { BetterAuthService } from './better-auth.service';
 import { UserEntity } from './entities/user.entity';
@@ -77,9 +59,7 @@ export class AuthModule implements NestModule, OnModuleInit {
 
     const providers = this.discoveryService
       .getProviders()
-      .filter(
-        ({ metatype }) => metatype && Reflect.getMetadata(HOOK_KEY, metatype),
-      );
+      .filter(({ metatype }) => metatype && Reflect.getMetadata(HOOK_KEY, metatype));
 
     for (const provider of providers) {
       const providerPrototype = Object.getPrototypeOf(provider.instance);
@@ -107,10 +87,7 @@ export class AuthModule implements NestModule, OnModuleInit {
       `${basePath}/*`,
       async (request: Request, reply: Reply) => {
         try {
-          const url = new URL(
-            request.url,
-            `${request.protocol}://${request.hostname}`,
-          );
+          const url = new URL(request.url, `${request.protocol}://${request.hostname}`);
 
           const headers = new Headers();
           Object.entries(request.headers).forEach(([key, value]) => {

@@ -9,69 +9,44 @@ class MailerCustomLogger implements NodeMailerLogger {
 
   constructor(
     private readonly logger: Logger,
-    private readonly logLevels: LoggerLevel[] = [
-      'trace',
-      'debug',
-      'info',
-      'warn',
-      'error',
-      'fatal',
-    ],
+    private readonly logLevels: LoggerLevel[] = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'],
   ) {}
 
   level(_level: LoggerLevel): void {}
 
   trace(...params: any[]): void {
     if (this.logLevels.includes('trace')) {
-      this.logger.log(
-        this.getPrefix(params[0]) + params[1],
-        ...params.slice(2),
-      );
+      this.logger.log(this.getPrefix(params[0]) + params[1], ...params.slice(2));
     }
   }
 
   debug(...params: any[]): void {
     if (this.logLevels.includes('debug')) {
-      this.logger.debug(
-        this.getPrefix(params[0]) + params[1],
-        ...params.slice(2),
-      );
+      this.logger.debug(this.getPrefix(params[0]) + params[1], ...params.slice(2));
     }
   }
 
   info(...params: any[]): void {
     if (this.logLevels.includes('info')) {
-      this.logger.log(
-        this.getPrefix(params[0]) + params[1],
-        ...params.slice(2),
-      );
+      this.logger.log(this.getPrefix(params[0]) + params[1], ...params.slice(2));
     }
   }
 
   warn(...params: any[]): void {
     if (this.logLevels.includes('warn')) {
-      this.logger.warn(
-        this.getPrefix(params[0]) + params[1],
-        ...params.slice(2),
-      );
+      this.logger.warn(this.getPrefix(params[0]) + params[1], ...params.slice(2));
     }
   }
 
   error(...params: any[]): void {
     if (this.logLevels.includes('error')) {
-      this.logger.error(
-        this.getPrefix(params[0]) + params[1],
-        ...params.slice(2),
-      );
+      this.logger.error(this.getPrefix(params[0]) + params[1], ...params.slice(2));
     }
   }
 
   fatal(...params: any[]): void {
     if (this.logLevels.includes('fatal')) {
-      this.logger.error(
-        this.getPrefix(params[0]) + params[1],
-        ...params.slice(2),
-      );
+      this.logger.error(this.getPrefix(params[0]) + params[1], ...params.slice(2));
     }
   }
 

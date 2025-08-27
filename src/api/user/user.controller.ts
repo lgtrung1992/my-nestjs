@@ -4,17 +4,7 @@ import { OffsetPaginatedDto } from '@/common/dto/offset-pagination/paginated.dto
 import { Uuid } from '@/common/types/common.type';
 import { CurrentUserSession } from '@/decorators/auth/current-user-session.decorator';
 import { ApiAuth } from '@/decorators/http.decorators';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Patch,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiParam, ApiTags } from '@nestjs/swagger';
 import { UpdateUserProfileDto } from './dto/update-user-profile.dto';
 import {
@@ -40,9 +30,7 @@ export class UserController {
     type: UserDto,
   })
   @Get('whoami')
-  async getCurrentUser(
-    @CurrentUserSession('user') user: CurrentUserSession['user'],
-  ): Promise<UserDto> {
+  async getCurrentUser(@CurrentUserSession('user') user: CurrentUserSession['user']): Promise<UserDto> {
     return await this.userService.findOneUser(user.id);
   }
 
@@ -52,9 +40,7 @@ export class UserController {
     summary: 'List users.',
     isPaginated: true,
   })
-  async findAllUsers(
-    @Query() dto: QueryUsersOffsetDto,
-  ): Promise<OffsetPaginatedDto<UserDto>> {
+  async findAllUsers(@Query() dto: QueryUsersOffsetDto): Promise<OffsetPaginatedDto<UserDto>> {
     return await this.userService.findAllUsers(dto);
   }
 
@@ -65,9 +51,7 @@ export class UserController {
     isPaginated: true,
     paginationType: 'cursor',
   })
-  async findAllUsersCursor(
-    @Query() dto: QueryUsersCursorDto,
-  ): Promise<CursorPaginatedDto<UserDto>> {
+  async findAllUsersCursor(@Query() dto: QueryUsersCursorDto): Promise<CursorPaginatedDto<UserDto>> {
     return await this.userService.findAllUsersCursor(dto);
   }
 
@@ -93,10 +77,7 @@ export class UserController {
     type: UserDto,
   })
   @Patch('profile')
-  updateUserProfile(
-    @Body() dto: UpdateUserProfileDto,
-    @CurrentUserSession() userSession: CurrentUserSession,
-  ) {
+  updateUserProfile(@Body() dto: UpdateUserProfileDto, @CurrentUserSession() userSession: CurrentUserSession) {
     return this.userService.updateUserProfile(userSession.user.id, dto, {
       headers: userSession.headers,
     });

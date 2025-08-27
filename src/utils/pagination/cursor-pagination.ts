@@ -1,20 +1,7 @@
-import {
-  Brackets,
-  ObjectType,
-  SelectQueryBuilder,
-  WhereExpressionBuilder,
-  type ObjectLiteral,
-} from 'typeorm';
+import { Brackets, ObjectType, SelectQueryBuilder, WhereExpressionBuilder, type ObjectLiteral } from 'typeorm';
 
-export function buildPaginator<Entity extends ObjectLiteral>(
-  options: PaginationOptions<Entity>,
-): Paginator<Entity> {
-  const {
-    entity,
-    query = {},
-    alias = entity.name.toLowerCase(),
-    paginationKeys = ['id' as any],
-  } = options;
+export function buildPaginator<Entity extends ObjectLiteral>(options: PaginationOptions<Entity>): Paginator<Entity> {
+  const { entity, query = {}, alias = entity.name.toLowerCase(), paginationKeys = ['id' as any] } = options;
 
   const paginator = new Paginator(entity, paginationKeys);
 
@@ -81,9 +68,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
     this.order = order;
   }
 
-  public async paginate(
-    builder: SelectQueryBuilder<Entity>,
-  ): Promise<PagingResult<Entity>> {
+  public async paginate(builder: SelectQueryBuilder<Entity>): Promise<PagingResult<Entity>> {
     const entities = await this.appendPagingQuery(builder).getMany();
     const hasMore = entities.length > this.limit;
 
@@ -117,9 +102,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
     };
   }
 
-  private appendPagingQuery(
-    builder: SelectQueryBuilder<Entity>,
-  ): SelectQueryBuilder<Entity> {
+  private appendPagingQuery(builder: SelectQueryBuilder<Entity>): SelectQueryBuilder<Entity> {
     const cursors: CursorParam = {};
     const clonedBuilder = new SelectQueryBuilder<Entity>(builder);
 
@@ -130,19 +113,14 @@ export default class Paginator<Entity extends ObjectLiteral> {
     }
 
     if (Object.keys(cursors).length > 0) {
-      clonedBuilder.andWhere(
-        new Brackets((where) => this.buildCursorQuery(where, cursors)),
-      );
+      clonedBuilder.andWhere(new Brackets((where) => this.buildCursorQuery(where, cursors)));
     }
 
     clonedBuilder.take(this.limit + 1);
 
     const paginationKeyOrders = this.buildOrder();
     Object.keys(paginationKeyOrders).forEach((orderKey) => {
-      clonedBuilder.addOrderBy(
-        orderKey,
-        paginationKeyOrders[orderKey] === 'ASC' ? 'ASC' : 'DESC',
-      );
+      clonedBuilder.addOrderBy(orderKey, paginationKeyOrders[orderKey] === 'ASC' ? 'ASC' : 'DESC');
     });
 
     return clonedBuilder;
@@ -153,10 +131,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
    * @param where WhereExpressionBuilder
    * @param cursors CursorParam
    */
-  private _buildCursorQuery(
-    where: WhereExpressionBuilder,
-    cursors: CursorParam,
-  ): void {
+  private _buildCursorQuery(where: WhereExpressionBuilder, cursors: CursorParam): void {
     const operator = this.getOperator();
     const params: CursorParam = {};
     let query = '';
@@ -172,10 +147,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
    * @param where WhereExpressionBuilder
    * @param cursors CursorParam
    */
-  private async buildCursorQuery(
-    where: WhereExpressionBuilder,
-    cursors: CursorParam,
-  ) {
+  private async buildCursorQuery(where: WhereExpressionBuilder, cursors: CursorParam) {
     const operator = this.getOperator();
     const params: CursorParam = {};
     let query = '';
@@ -183,16 +155,10 @@ export default class Paginator<Entity extends ObjectLiteral> {
       params[key] = cursors[key];
       const type = this.getEntityPropertyType(key);
       if (type === 'date') {
-        where.orWhere(
-          `${query}date_trunc('milliseconds', ${this.alias}.${key}) ${operator} :${key}`,
-          params,
-        );
+        where.orWhere(`${query}date_trunc('milliseconds', ${this.alias}.${key}) ${operator} :${key}`, params);
         query = `${query}date_trunc('milliseconds', ${this.alias}.${key}) = :${key} AND `;
       } else {
-        where.orWhere(
-          `${query}${this.alias}.${key} ${operator} :${key}`,
-          params,
-        );
+        where.orWhere(`${query}${this.alias}.${key} ${operator} :${key}`, params);
         query = `${query}${this.alias}.${key} = :${key} AND `;
       }
     }
@@ -259,11 +225,7 @@ export default class Paginator<Entity extends ObjectLiteral> {
   }
 
   private getEntityPropertyType(key: string): string {
-    return Reflect.getMetadata(
-      'design:type',
-      this.entity.prototype,
-      key,
-    ).name.toLowerCase();
+    return Reflect.getMetadata('design:type', this.entity.prototype, key).name.toLowerCase();
   }
 
   private flipOrder(order: Order): Order {

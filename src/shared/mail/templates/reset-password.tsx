@@ -1,14 +1,5 @@
 // ResetPassword.tsx
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Tailwind,
-  Text,
-} from '@react-email/components';
+import { Body, Button, Container, Head, Html, Preview, Tailwind, Text } from '@react-email/components';
 import * as React from 'react';
 
 interface ResetPasswordProps {
@@ -16,10 +7,7 @@ interface ResetPasswordProps {
   url: string;
 }
 
-export const ResetPassword = ({
-  email = '{{email}}',
-  url = '{{url}}',
-}: ResetPasswordProps) => {
+export const ResetPassword = ({ email = '{{email}}', url = '{{url}}' }: ResetPasswordProps) => {
   return (
     <Html>
       <Head />
@@ -28,12 +16,8 @@ export const ResetPassword = ({
         <Body className="bg-[#f4f4f7] font-sans">
           <Container className="bg-white max-w-xl mx-auto p-6 rounded-lg">
             <Text className="text-xl font-semibold mb-4">Hi {email},</Text>
-            <Text className="text-base mb-2">
-              We received a request to reset your password.
-            </Text>
-            <Text className="text-base mb-4">
-              Click the button below to proceed to reset it:
-            </Text>
+            <Text className="text-base mb-2">We received a request to reset your password.</Text>
+            <Text className="text-base mb-4">Click the button below to proceed to reset it:</Text>
             <Button
               href={url}
               className="bg-blue-600 text-white font-bold py-3 px-5 rounded-md no-underline inline-block mb-4"

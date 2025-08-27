@@ -10,10 +10,7 @@ import { validate } from 'class-validator';
  * @param {string} options.property: Property accessor for nested objects
  * @param {number} options.argIndex: Argument index on the function
  */
-export function ValidateDto(
-  dtoClass: any,
-  options?: { property?: string; argIndex?: number },
-) {
+export function ValidateDto(dtoClass: any, options?: { property?: string; argIndex?: number }) {
   return function (target: any, key: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
@@ -24,14 +21,10 @@ export function ValidateDto(
         throw new Error(`Argument supplied at index ${argIndex} is invalid.`);
       }
       const dtoObject = plainToInstance(dtoClass, arg);
-      const errors = await validate(
-        options?.property ? dtoObject?.[options?.property] : dtoObject,
-      );
+      const errors = await validate(options?.property ? dtoObject?.[options?.property] : dtoObject);
 
       if (errors.length > 0) {
-        throw new BadRequestException(
-          errors.map((error) => Object.values(error.constraints)).join(', '),
-        );
+        throw new BadRequestException(errors.map((error) => Object.values(error.constraints)).join(', '));
       }
 
       return originalMethod.apply(this, args);

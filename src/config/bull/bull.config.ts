@@ -26,9 +26,7 @@ export function getConfig(): BullConfig {
     defaultJobOptions: {
       removeOnComplete: process.env.QUEUE_REMOVE_ON_COMPLETE === 'true',
       removeOnFail: process.env.QUEUE_REMOVE_ON_FAIL === 'true',
-      attempts: process.env.QUEUE_FAILED_RETRY_ATTEMPTS
-        ? Number.parseInt(process.env.QUEUE_FAILED_RETRY_ATTEMPTS)
-        : 0,
+      attempts: process.env.QUEUE_FAILED_RETRY_ATTEMPTS ? Number.parseInt(process.env.QUEUE_FAILED_RETRY_ATTEMPTS) : 0,
       backoff: {
         type: 'exponential', // With an exponential backoff, it will retry after 2 ^ attempts * delay milliseconds
         delay: 1000,

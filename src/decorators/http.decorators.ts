@@ -1,11 +1,6 @@
 import { ErrorDto } from '@/common/dto/error.dto';
 import { Serialize } from '@/utils/interceptors/serialize';
-import {
-  HttpCode,
-  HttpStatus,
-  type Type,
-  applyDecorators,
-} from '@nestjs/common';
+import { HttpCode, HttpStatus, type Type, applyDecorators } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -51,13 +46,12 @@ export const ApiPublic = (options: IApiPublicOptions = {}): MethodDecorator => {
     paginationType: options.paginationType || 'offset',
   };
 
-  const errorResponses = (options.errorResponses || defaultErrorResponses)?.map(
-    (statusCode) =>
-      ApiResponse({
-        status: statusCode,
-        type: ErrorDto,
-        description: STATUS_CODES[statusCode],
-      }),
+  const errorResponses = (options.errorResponses || defaultErrorResponses)?.map((statusCode) =>
+    ApiResponse({
+      status: statusCode,
+      type: ErrorDto,
+      description: STATUS_CODES[statusCode],
+    }),
   );
 
   const serializers = [];
@@ -92,13 +86,12 @@ export const ApiAuth = (options: IApiAuthOptions = {}): MethodDecorator => {
     paginationType: options.paginationType || 'offset',
   };
 
-  const errorResponses = (options.errorResponses || defaultErrorResponses)?.map(
-    (statusCode) =>
-      ApiResponse({
-        status: statusCode,
-        type: ErrorDto,
-        description: STATUS_CODES[statusCode],
-      }),
+  const errorResponses = (options.errorResponses || defaultErrorResponses)?.map((statusCode) =>
+    ApiResponse({
+      status: statusCode,
+      type: ErrorDto,
+      description: STATUS_CODES[statusCode],
+    }),
   );
 
   const serializers = [];
@@ -109,11 +102,7 @@ export const ApiAuth = (options: IApiAuthOptions = {}): MethodDecorator => {
   return applyDecorators(
     ApiOperation({ summary: options?.summary, ...(options?.operations ?? {}) }),
     HttpCode(options.statusCode || defaultStatusCode),
-    isPaginated
-      ? ApiPaginatedResponse(ok)
-      : options.statusCode === 201
-        ? ApiCreatedResponse(ok)
-        : ApiOkResponse(ok),
+    isPaginated ? ApiPaginatedResponse(ok) : options.statusCode === 201 ? ApiCreatedResponse(ok) : ApiOkResponse(ok),
     ApiBearerAuth(),
     ...serializers,
     ...errorResponses,

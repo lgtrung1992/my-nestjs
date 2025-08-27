@@ -39,11 +39,7 @@ type QueueJob<N extends keyof JobDataMap> = {
 };
 
 export type EmailQueue = Omit<Queue<QueueJob<keyof JobDataMap>>, 'add'> & {
-  add<N extends keyof JobDataMap>(
-    name: N,
-    data: JobDataMap[N],
-    options?: JobsOptions,
-  ): Promise<void>;
+  add<N extends keyof JobDataMap>(name: N, data: JobDataMap[N], options?: JobsOptions): Promise<void>;
 };
 
 export type EmailJob =
