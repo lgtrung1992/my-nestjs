@@ -11,4 +11,5 @@ export type AuthConfig = {
     };
   };
   cookiePrefix: string;
+  cookieSameSite: string;
 };

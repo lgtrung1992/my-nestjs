@@ -279,6 +279,11 @@ export function getConfig({
         },
       },
       cookiePrefix: authConfig.cookiePrefix,
+      defaultCookieAttributes: {
+        sameSite: authConfig.cookieSameSite as 'lax' | 'strict' | 'none',
+        secure: true,
+        httpOnly: true,
+      },
     },
     // Use Redis for storing sessions
     secondaryStorage: {

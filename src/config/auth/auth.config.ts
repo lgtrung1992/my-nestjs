@@ -23,6 +23,10 @@ class EnvironmentVariablesValidator {
   @IsString()
   @IsOptional()
   GITHUB_CLIENT_SECRET: string;
+
+  @IsString()
+  @IsOptional()
+  COOKIE_SAME_SITE: string;
 }
 
 export function getConfig(): AuthConfig {
@@ -39,6 +43,7 @@ export function getConfig(): AuthConfig {
       },
     },
     cookiePrefix: process.env.COOKIE_PREFIX || 'lIPEjCnVom',
+    cookieSameSite: process.env.COOKIE_SAME_SITE || 'lax',
   };
 }
 
